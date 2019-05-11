@@ -213,6 +213,7 @@
     "form.user.label.password": "Password",
     "form.user.label.confirmation": "Password Confirmation",
     "form.user.label.admin": "Administrator",
+    "form.user.label.mercury_api_url" : "Mercury API URL",
     "form.prefs.label.language": "Language",
     "form.prefs.label.timezone": "Timezone",
     "form.prefs.label.theme": "Theme",
