@@ -497,6 +497,10 @@ var templateViewsMap = map[string]string{
 
         <label><input type="checkbox" name="crawler" value="1" {{ if .form.Crawler }}checked{{ end }}> {{ t "form.feed.label.crawler" }}</label>
 
+        <label>
+            <input type="checkbox" name="use_mercury" id="form-use_mercury" value="1" {{ if .form.UseMercury }}checked{{ end }}> {{ t "form.feed.label.use_mercury" }}
+        </label>
+
         <div class="buttons">
             <button type="submit" class="button button-primary" data-label-loading="{{ t "form.submit.saving" }}">{{ t "action.update" }}</button> {{ t "action.or" }} <a href="{{ route "feeds" }}">{{ t "action.cancel" }}</a>
         </div>
@@ -1290,6 +1294,9 @@ var templateViewsMap = map[string]string{
 
     <label><input type="checkbox" name="keyboard_shortcuts" value="1" {{ if .form.KeyboardShortcuts }}checked{{ end }}> {{ t "form.prefs.label.keyboard_shortcuts" }}</label>
 
+    <label for="form-mercury_api_url">{{ t "form.user.label.mercury_api_url" }}</label>
+    <input type="text" name="mercury_api_url" id="form-mercury_api_url" value="{{ .form.MercuryAPIURL }}">
+
     <div class="buttons">
         <button type="submit" class="button button-primary" data-label-loading="{{ t "form.submit.saving" }}">{{ t "action.update" }}</button>
     </div>
@@ -1434,7 +1441,7 @@ var templateViewsMapChecksums = map[string]string{
 	"create_category":     "6b22b5ce51abf4e225e23a79f81be09a7fb90acb265e93a8faf9446dff74018d",
 	"create_user":         "1e940be3afefc0a5c6273bbadcddc1e29811e9548e5227ac2adfe697ca5ce081",
 	"edit_category":       "daf073d2944a180ce5aaeb80b597eb69597a50dff55a9a1d6cf7938b48d768cb",
-	"edit_feed":           "b3b3029f7ca1a836954d90b89ed09ad8db1cf67763c1661de4c2be5303987be3",
+	"edit_feed":           "d70f14e68b23929ba0c18d6505c8ad36d26bbd75ffda97b9392bd59f459f1871",
 	"edit_user":           "f4f99412ba771cfca2a2a42778b023b413c5494e9a287053ba8cf380c2865c5f",
 	"entry":               "1626bf4dd3223b2f730865676162aa0a9f0a0e009cdea90f705230542922e0f4",
 	"feed_entries":        "0b97344b4045058b7154d0c01b85e4afd957c23e7cb2d011451f96baf6233dfc",
@@ -1445,7 +1452,7 @@ var templateViewsMapChecksums = map[string]string{
 	"login":               "2e72d2d4b9786641b696bedbed5e10b04bdfd68254ddbbdb0a53cca621d200c7",
 	"search_entries":      "d71849a4f2b0573c7c76ad0ea941812009e9f022de60895987a781d3e6f08a01",
 	"sessions":            "1b3ec0970a4111b81f86d6ed187bb410f88972e2ede6723b9febcc4c7e5fc921",
-	"settings":            "152143e58d057ea6ab3bfd8dd947bfd70685843ca40e40542484b23849746df4",
+	"settings":            "b82ee531e51311c92a2629b2415ceadc0022a7507644dcaf51ceddc4232b470e",
 	"unread_entries":      "880018cbc59ec09b23dd800c4010fadad944d7023e0d36a3872c09b5d4952799",
 	"users":               "4b56cc76fbcc424e7c870d0efca93bb44dbfcc2a08b685cf799c773fbb8dfb2f",
 }

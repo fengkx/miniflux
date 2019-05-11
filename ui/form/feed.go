@@ -23,6 +23,7 @@ type FeedForm struct {
 	TitleFilter   string
 	ContentFilter string
 	Crawler       bool
+	UseMercury    bool
 	UserAgent     string
 	CategoryID    int64
 	Username      string
@@ -60,6 +61,7 @@ func (f FeedForm) Merge(feed *model.Feed) *model.Feed {
 	feed.TitleFilter = f.TitleFilter
 	feed.ContentFilter = f.ContentFilter
 	feed.Crawler = f.Crawler
+	feed.UseMercury = f.UseMercury
 	feed.UserAgent = f.UserAgent
 	feed.ParsingErrorCount = 0
 	feed.ParsingErrorMsg = ""
@@ -85,6 +87,7 @@ func NewFeedForm(r *http.Request) *FeedForm {
 		TitleFilter:   r.FormValue("title_filter"),
 		ContentFilter: r.FormValue("content_filter"),
 		Crawler:       r.FormValue("crawler") == "1",
+		UseMercury:    r.FormValue("use_mercury") == "1",
 		CategoryID:    int64(categoryID),
 		Username:      r.FormValue("feed_username"),
 		Password:      r.FormValue("feed_password"),

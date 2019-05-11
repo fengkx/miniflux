@@ -66,6 +66,9 @@
 
     <label><input type="checkbox" name="keyboard_shortcuts" value="1" {{ if .form.KeyboardShortcuts }}checked{{ end }}> {{ t "form.prefs.label.keyboard_shortcuts" }}</label>
 
+    <label for="form-mercury_api_url">{{ t "form.user.label.mercury_api_url" }}</label>
+    <input type="text" name="mercury_api_url" id="form-mercury_api_url" value="{{ .form.MercuryAPIURL }}">
+
     <div class="buttons">
         <button type="submit" class="button button-primary" data-label-loading="{{ t "form.submit.saving" }}">{{ t "action.update" }}</button>
     </div>

@@ -5,8 +5,10 @@
 package processor
 
 import (
+	"fmt"
 	"miniflux.app/logger"
 	"miniflux.app/model"
+	"miniflux.app/reader/mercury"
 	"miniflux.app/reader/rewrite"
 	"miniflux.app/reader/sanitizer"
 	"miniflux.app/reader/scraper"
@@ -28,6 +30,21 @@ func ProcessFeedEntries(store *storage.Storage, feed *model.Feed) {
 			}
 		}
 
+		if feed.UseMercury {
+			if !store.EntryURLExists(feed.ID, entry.URL) {
+				user, err := store.UserByID(feed.UserID)
+				if err != nil && user.MercuryAPIURL != "" {
+					content, err := mercury.Fetch(entry.URL, user.MercuryAPIURL)
+					if err != nil {
+						logger.Error(`[Merucry] Unable to crawl this entry: %q => %v`, entry.URL, err)
+					} else if content != "" {
+						// We replace the entry content only if the scraper doesn't return any error.
+						entry.Content = content
+					}
+				}
+			}
+		}
+
 		entry.Content = rewrite.Rewriter(entry.URL, entry.Content, feed.RewriteRules)
 
 		// The sanitizer should always run at the end of the process to make sure unsafe HTML is filtered.
@@ -36,17 +53,34 @@ func ProcessFeedEntries(store *storage.Storage, feed *model.Feed) {
 }
 
 // ProcessEntryWebPage downloads the entry web page and apply rewrite rules.
-func ProcessEntryWebPage(entry *model.Entry) error {
-	content, err := scraper.Fetch(entry.URL, entry.Feed.ScraperRules, entry.Feed.UserAgent)
-	if err != nil {
-		return err
-	}
+func ProcessEntryWebPage(entry *model.Entry, store *storage.Storage) error {
+	if entry.Feed.UseMercury {
+		user, err := store.UserByID(entry.UserID)
+		if err != nil {
+			return fmt.Errorf(`[Merucry] Unable to crawl this entry: %q => %v`, entry.URL, err)
+		}
+		if user.MercuryAPIURL == "" {
+			return fmt.Errorf(`[Merucry] Unable to crawl this entry: %q => %v`, entry.URL, "API URL NOT SET")
+		}
+		content, err := mercury.Fetch(entry.URL, user.MercuryAPIURL)
+		if err != nil {
+			return err
+		}
+		if content != "" {
+			entry.Content = content
+		}
+	} else {
+		content, err := scraper.Fetch(entry.URL, entry.Feed.ScraperRules, entry.Feed.UserAgent)
+		if err != nil {
+			return err
+		}
 
-	content = rewrite.Rewriter(entry.URL, content, entry.Feed.RewriteRules)
-	content = sanitizer.Sanitize(entry.URL, content)
+		content = rewrite.Rewriter(entry.URL, content, entry.Feed.RewriteRules)
+		content = sanitizer.Sanitize(entry.URL, content)
 
-	if content != "" {
-		entry.Content = content
+		if content != "" {
+			entry.Content = content
+		}
 	}
 
 	return nil

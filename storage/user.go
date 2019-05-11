@@ -124,9 +124,10 @@ func (s *Storage) UpdateUser(user *model.User) error {
 				language=$5,
 				timezone=$6,
 				entry_direction=$7,
-				keyboard_shortcuts=$8
+				keyboard_shortcuts=$8,
+				mercury_parser_api_url=$9
 			WHERE
-				id=$9
+				id=$10
 		`
 
 		_, err = s.db.Exec(
@@ -139,6 +140,7 @@ func (s *Storage) UpdateUser(user *model.User) error {
 			user.Timezone,
 			user.EntryDirection,
 			user.KeyboardShortcuts,
+			user.MercuryAPIURL,
 			user.ID,
 		)
 		if err != nil {
@@ -153,9 +155,10 @@ func (s *Storage) UpdateUser(user *model.User) error {
 				language=$4,
 				timezone=$5,
 				entry_direction=$6,
-				keyboard_shortcuts=$7
+				keyboard_shortcuts=$7,
+				mercury_parser_api_url=$8
 			WHERE
-				id=$8
+				id=$9
 		`
 
 		_, err := s.db.Exec(
@@ -167,6 +170,7 @@ func (s *Storage) UpdateUser(user *model.User) error {
 			user.Timezone,
 			user.EntryDirection,
 			user.KeyboardShortcuts,
+			user.MercuryAPIURL,
 			user.ID,
 		)
 
@@ -192,14 +196,13 @@ func (s *Storage) UserLanguage(userID int64) (language string) {
 func (s *Storage) UserByID(userID int64) (*model.User, error) {
 	query := `
 		SELECT
-			id, username, is_admin, theme, language, timezone, entry_direction, keyboard_shortcuts,
+			id, username, is_admin, theme, language, timezone, entry_direction, keyboard_shortcuts, mercury_parser_api_url,
 			last_login_at, extra
 		FROM
 			users
 		WHERE
 			id = $1
 	`
-
 	return s.fetchUser(query, userID)
 }
 
@@ -207,7 +210,7 @@ func (s *Storage) UserByID(userID int64) (*model.User, error) {
 func (s *Storage) UserByUsername(username string) (*model.User, error) {
 	query := `
 		SELECT
-			id, username, is_admin, theme, language, timezone, entry_direction, keyboard_shortcuts,
+			id, username, is_admin, theme, language, timezone, entry_direction, keyboard_shortcuts, mercury_parser_api_url,
 			last_login_at, extra
 		FROM
 			users
@@ -222,7 +225,7 @@ func (s *Storage) UserByUsername(username string) (*model.User, error) {
 func (s *Storage) UserByExtraField(field, value string) (*model.User, error) {
 	query := `
 		SELECT
-			id, username, is_admin, theme, language, timezone, entry_direction, keyboard_shortcuts,
+			id, username, is_admin, theme, language, timezone, entry_direction, keyboard_shortcuts, mercury_parser_api_url
 			last_login_at, extra
 		FROM
 			users
@@ -246,6 +249,7 @@ func (s *Storage) fetchUser(query string, args ...interface{}) (*model.User, err
 		&user.Timezone,
 		&user.EntryDirection,
 		&user.KeyboardShortcuts,
+		&user.MercuryAPIURL,
 		&user.LastLoginAt,
 		&extra,
 	)

@@ -71,3 +71,14 @@ func TestDomain(t *testing.T) {
 		}
 	}
 }
+
+func TestAddQueryString(t *testing.T) {
+	baseURl := "http://example.com/parser"
+	var paramMap = map[string]string{
+		"url": "http://www.example.com",
+	}
+	expected := "http://example.com/parser?url=http%3A%2F%2Fwww.example.com"
+	if actual := AddQueryString(baseURl, paramMap); actual != expected {
+		t.Errorf(`Unexpected result, got %q instead of %q`, actual, expected)
+	}
+}

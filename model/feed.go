@@ -28,6 +28,7 @@ type Feed struct {
 	TitleFilter        string    `json:"title_filter"`
 	ContentFilter      string    `json:"content_filter"`
 	Crawler            bool      `json:"crawler"`
+	UseMercury         bool      `json:"use_mercury"`
 	UserAgent          string    `json:"user_agent"`
 	Username           string    `json:"username"`
 	Password           string    `json:"password"`

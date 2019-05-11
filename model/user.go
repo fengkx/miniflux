@@ -22,6 +22,7 @@ type User struct {
 	Timezone          string            `json:"timezone"`
 	EntryDirection    string            `json:"entry_sorting_direction"`
 	KeyboardShortcuts bool              `json:"keyboard_shortcuts"`
+	MercuryAPIURL     string			`json:"mercury_parser_api_url"`
 	LastLoginAt       *time.Time        `json:"last_login_at,omitempty"`
 	Extra             map[string]string `json:"extra"`
 }

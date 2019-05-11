@@ -4,7 +4,10 @@
 
 package url // import "miniflux.app/url"
 
-import "net/url"
+import (
+	"miniflux.app/logger"
+	"net/url"
+)
 import "fmt"
 import "strings"
 
@@ -68,4 +71,14 @@ func Domain(websiteURL string) string {
 	}
 
 	return parsedURL.Host
+}
+
+func AddQueryString(websiteURL string, params map[string]string) string  {
+	var value url.Values
+	value = url.Values{}
+	for k, v := range params {
+		value.Set(k,v)
+	}
+	logger.Debug("uri: %s", websiteURL + "?" + value.Encode())
+	return websiteURL + "?" + value.Encode()
 }

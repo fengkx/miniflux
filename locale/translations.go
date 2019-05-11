@@ -509,6 +509,7 @@ var translations = map[string]string{
     "form.feed.label.rewrite_rules": "Rewrite Rules",
     "form.feed.label.title_filter": "Title Filter",
     "form.feed.label.content_filter": "Content Filter",
+    "form.feed.label.use_mercury": "Use Mercury Parser",
     "form.category.label.title": "Title",
     "form.user.label.username": "Username",
     "form.user.label.password": "Password",
@@ -2602,7 +2603,7 @@ var translations = map[string]string{
 
 var translationsChecksums = map[string]string{
 	"de_DE": "2b74d0b3cda1427d048ce9070d94f4e4649f50804cbfec5983ffbd6cd9d274f9",
-	"en_US": "3df24130adfc2c6bada7d73fc1817788c82c42a4049c408e9e33481cbf6a92fa",
+	"en_US": "00c4b127c6ab01418da24068d22ad7dc74c5ac5cce483726fab00c5647d087e5",
 	"es_ES": "c72a67cdeb2849cf97e00524b172d6e85e9e1a99770e82f2d9695956d441cd18",
 	"fr_FR": "89808f7020c5e9cd19a6d490fa6c856edb993ad0cd893910537309e332d202e3",
 	"it_IT": "b9628be9cf15c3d7389dc4362bc424a886f508f93bc7de22061cbc101548bb24",

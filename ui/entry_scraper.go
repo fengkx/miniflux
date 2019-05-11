@@ -30,7 +30,7 @@ func (h *handler) fetchContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := processor.ProcessEntryWebPage(entry); err != nil {
+	if err := processor.ProcessEntryWebPage(entry, h.store); err != nil {
 		json.ServerError(w, r, err)
 		return
 	}

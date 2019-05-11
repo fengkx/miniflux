@@ -7,8 +7,8 @@ package ui // import "miniflux.app/ui"
 import (
 	"net/http"
 
-	"miniflux.app/http/response/html"
 	"miniflux.app/http/request"
+	"miniflux.app/http/response/html"
 	"miniflux.app/http/route"
 	"miniflux.app/locale"
 	"miniflux.app/logger"
@@ -56,7 +56,6 @@ func (h *handler) updateSettings(w http.ResponseWriter, r *http.Request) {
 		html.OK(w, r, view.Render("settings"))
 		return
 	}
-
 	err = h.store.UpdateUser(settingsForm.Merge(user))
 	if err != nil {
 		logger.Error("[UI:UpdateSettings] %v", err)
