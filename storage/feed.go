@@ -312,23 +312,3 @@ func (s *Storage) ResetFeedErrors() error {
 	_, err := s.db.Exec(`UPDATE feeds SET parsing_error_count=0, parsing_error_msg=''`)
 	return err
 }
-
-// Remove Entries match by title filter
-func (s *Storage) FilterByTitle(userID, feedID int64, regex string) error {
-	_, err := s.db.Exec(`UPDATE entries SET status=$1  WHERE feed_id=$2 AND user_id=$3 AND title ~* $4;`,
-		model.EntryStatusRemoved, feedID, userID, regex)
-	if err != nil {
-		return fmt.Errorf("unable to remove entries #%d filter: %s: %v", feedID, regex, err)
-	}
-	return nil
-}
-
-// Remove Entries match by content filter
-func (s *Storage) FilterByContent(userID, feedID int64, regex string) error {
-	_, err := s.db.Exec(`UPDATE entries SET status=$1  WHERE feed_id=$2 AND user_id=$3 AND content ~* $4;`,
-		model.EntryStatusRemoved, feedID, userID, regex)
-	if err != nil {
-		return fmt.Errorf("unable to remove entries #%d filter: %s: %v", feedID, regex, err)
-	}
-	return nil
-}
