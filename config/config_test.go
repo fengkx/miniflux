@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
-	"time"
 )
 
 func TestDebugModeOn(t *testing.T) {
@@ -1166,15 +1165,5 @@ Invalid text
 
 	if err := os.Remove(tmpfile.Name()); err != nil {
 		t.Fatal(err)
-	}
-}
-
-func TestRequestTimeout(t *testing.T) {
-	os.Clearenv()
-	os.Setenv("REQUEST_MAX_TIMEOUT", "500")
-	cfg := NewConfig()
-	timeout := cfg.RequestTimeout()
-	if timeout != 500*time.Second {
-		t.Fatalf(`Unexpected RequestTimeout value, got "%v"`, timeout)
 	}
 }
