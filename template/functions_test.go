@@ -134,13 +134,19 @@ func TestElapsedTime(t *testing.T) {
 func TestProxyFilterWithHttpDefault(t *testing.T) {
 	os.Clearenv()
 	os.Setenv("PROXY_IMAGES", "http-only")
-	c := config.NewConfig()
+
+	var err error
+	parser := config.NewParser()
+	config.Opts, err = parser.ParseEnvironmentVariables()
+	if err != nil {
+		t.Fatalf(`Parsing failure: %v`, err)
+	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/proxy/{encodedURL}", func(w http.ResponseWriter, r *http.Request) {}).Name("proxy")
 
 	input := `<p><img src="http://website/folder/image.png" alt="Test"/></p>`
-	output := imageProxyFilter(r, c, input)
+	output := imageProxyFilter(r, input)
 	expected := `<p><img src="/proxy/aHR0cDovL3dlYnNpdGUvZm9sZGVyL2ltYWdlLnBuZw==" alt="Test"/></p>`
 
 	if expected != output {
@@ -151,13 +157,19 @@ func TestProxyFilterWithHttpDefault(t *testing.T) {
 func TestProxyFilterWithHttpsDefault(t *testing.T) {
 	os.Clearenv()
 	os.Setenv("PROXY_IMAGES", "http-only")
-	c := config.NewConfig()
+
+	var err error
+	parser := config.NewParser()
+	config.Opts, err = parser.ParseEnvironmentVariables()
+	if err != nil {
+		t.Fatalf(`Parsing failure: %v`, err)
+	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/proxy/{encodedURL}", func(w http.ResponseWriter, r *http.Request) {}).Name("proxy")
 
 	input := `<p><img src="https://website/folder/image.png" alt="Test"/></p>`
-	output := imageProxyFilter(r, c, input)
+	output := imageProxyFilter(r, input)
 	expected := `<p><img src="https://website/folder/image.png" alt="Test"/></p>`
 
 	if expected != output {
@@ -168,13 +180,19 @@ func TestProxyFilterWithHttpsDefault(t *testing.T) {
 func TestProxyFilterWithHttpNever(t *testing.T) {
 	os.Clearenv()
 	os.Setenv("PROXY_IMAGES", "none")
-	c := config.NewConfig()
+
+	var err error
+	parser := config.NewParser()
+	config.Opts, err = parser.ParseEnvironmentVariables()
+	if err != nil {
+		t.Fatalf(`Parsing failure: %v`, err)
+	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/proxy/{encodedURL}", func(w http.ResponseWriter, r *http.Request) {}).Name("proxy")
 
 	input := `<p><img src="http://website/folder/image.png" alt="Test"/></p>`
-	output := imageProxyFilter(r, c, input)
+	output := imageProxyFilter(r, input)
 	expected := input
 
 	if expected != output {
@@ -185,13 +203,19 @@ func TestProxyFilterWithHttpNever(t *testing.T) {
 func TestProxyFilterWithHttpsNever(t *testing.T) {
 	os.Clearenv()
 	os.Setenv("PROXY_IMAGES", "none")
-	c := config.NewConfig()
+
+	var err error
+	parser := config.NewParser()
+	config.Opts, err = parser.ParseEnvironmentVariables()
+	if err != nil {
+		t.Fatalf(`Parsing failure: %v`, err)
+	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/proxy/{encodedURL}", func(w http.ResponseWriter, r *http.Request) {}).Name("proxy")
 
 	input := `<p><img src="https://website/folder/image.png" alt="Test"/></p>`
-	output := imageProxyFilter(r, c, input)
+	output := imageProxyFilter(r, input)
 	expected := input
 
 	if expected != output {
@@ -202,13 +226,19 @@ func TestProxyFilterWithHttpsNever(t *testing.T) {
 func TestProxyFilterWithHttpAlways(t *testing.T) {
 	os.Clearenv()
 	os.Setenv("PROXY_IMAGES", "all")
-	c := config.NewConfig()
+
+	var err error
+	parser := config.NewParser()
+	config.Opts, err = parser.ParseEnvironmentVariables()
+	if err != nil {
+		t.Fatalf(`Parsing failure: %v`, err)
+	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/proxy/{encodedURL}", func(w http.ResponseWriter, r *http.Request) {}).Name("proxy")
 
 	input := `<p><img src="http://website/folder/image.png" alt="Test"/></p>`
-	output := imageProxyFilter(r, c, input)
+	output := imageProxyFilter(r, input)
 	expected := `<p><img src="/proxy/aHR0cDovL3dlYnNpdGUvZm9sZGVyL2ltYWdlLnBuZw==" alt="Test"/></p>`
 
 	if expected != output {
@@ -219,13 +249,19 @@ func TestProxyFilterWithHttpAlways(t *testing.T) {
 func TestProxyFilterWithHttpsAlways(t *testing.T) {
 	os.Clearenv()
 	os.Setenv("PROXY_IMAGES", "all")
-	c := config.NewConfig()
+
+	var err error
+	parser := config.NewParser()
+	config.Opts, err = parser.ParseEnvironmentVariables()
+	if err != nil {
+		t.Fatalf(`Parsing failure: %v`, err)
+	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/proxy/{encodedURL}", func(w http.ResponseWriter, r *http.Request) {}).Name("proxy")
 
 	input := `<p><img src="https://website/folder/image.png" alt="Test"/></p>`
-	output := imageProxyFilter(r, c, input)
+	output := imageProxyFilter(r, input)
 	expected := `<p><img src="/proxy/aHR0cHM6Ly93ZWJzaXRlL2ZvbGRlci9pbWFnZS5wbmc=" alt="Test"/></p>`
 
 	if expected != output {
@@ -236,13 +272,19 @@ func TestProxyFilterWithHttpsAlways(t *testing.T) {
 func TestProxyFilterWithHttpInvalid(t *testing.T) {
 	os.Clearenv()
 	os.Setenv("PROXY_IMAGES", "invalid")
-	c := config.NewConfig()
+
+	var err error
+	parser := config.NewParser()
+	config.Opts, err = parser.ParseEnvironmentVariables()
+	if err != nil {
+		t.Fatalf(`Parsing failure: %v`, err)
+	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/proxy/{encodedURL}", func(w http.ResponseWriter, r *http.Request) {}).Name("proxy")
 
 	input := `<p><img src="http://website/folder/image.png" alt="Test"/></p>`
-	output := imageProxyFilter(r, c, input)
+	output := imageProxyFilter(r, input)
 	expected := `<p><img src="/proxy/aHR0cDovL3dlYnNpdGUvZm9sZGVyL2ltYWdlLnBuZw==" alt="Test"/></p>`
 
 	if expected != output {
@@ -253,13 +295,19 @@ func TestProxyFilterWithHttpInvalid(t *testing.T) {
 func TestProxyFilterWithHttpsInvalid(t *testing.T) {
 	os.Clearenv()
 	os.Setenv("PROXY_IMAGES", "invalid")
-	c := config.NewConfig()
+
+	var err error
+	parser := config.NewParser()
+	config.Opts, err = parser.ParseEnvironmentVariables()
+	if err != nil {
+		t.Fatalf(`Parsing failure: %v`, err)
+	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/proxy/{encodedURL}", func(w http.ResponseWriter, r *http.Request) {}).Name("proxy")
 
 	input := `<p><img src="https://website/folder/image.png" alt="Test"/></p>`
-	output := imageProxyFilter(r, c, input)
+	output := imageProxyFilter(r, input)
 	expected := `<p><img src="https://website/folder/image.png" alt="Test"/></p>`
 
 	if expected != output {
