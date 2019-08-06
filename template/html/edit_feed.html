@@ -81,6 +81,7 @@
         </select>
 
         <label><input type="checkbox" name="crawler" value="1" {{ if .form.Crawler }}checked{{ end }}> {{ t "form.feed.label.crawler" }}</label>
+        <label><input type="checkbox" name="disabled" value="1" {{ if .form.Disabled }}checked{{ end }}> {{ t "form.feed.label.disabled" }}</label>
 
         <label>
             <input type="checkbox" name="use_mercury" id="form-use_mercury" value="1" {{ if .form.UseMercury }}checked{{ end }}> {{ t "form.feed.label.use_mercury" }}

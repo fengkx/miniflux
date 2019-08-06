@@ -207,6 +207,7 @@
     "form.feed.label.rewrite_rules": "Umschreiberegeln",
     "form.feed.label.title_filter": "Titelfilter",
     "form.feed.label.content_filter": "Inhaltsfilter",
+    "form.feed.label.disabled": "Aktualisieren Sie diesen Feed nicht",
     "form.category.label.title": "Titel",
     "form.user.label.username": "Benutzername",
     "form.user.label.password": "Passwort",

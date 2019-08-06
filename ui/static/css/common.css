@@ -37,10 +37,6 @@ a:hover {
     text-decoration: none;
 }
 
-.link-flipped-state {
-    font-style: italic;
-}
-
 /* Header and main menu */
 .header {
     margin-top: 10px;
@@ -183,6 +179,7 @@ a:hover {
         text-align: right;
         display: block;
         margin-top: 10px;
+        margin-right: 5px;
     }
 
     .search-toggle-switch {
@@ -614,7 +611,7 @@ a.button {
     overflow-x: hidden;
 }
 
-.hide-read-items .item-status-read {
+.hide-read-items .item-status-read:not(.current-item) {
     display: none;
 }
 

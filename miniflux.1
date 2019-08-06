@@ -1,5 +1,5 @@
 .\" Manpage for miniflux.
-.TH "MINIFLUX" "1" "November 9, 2018" "\ \&" "\ \&"
+.TH "MINIFLUX" "1" "June 8, 2019" "\ \&" "\ \&"
 
 .SH NAME
 miniflux \- Minimalist and opinionated feed reader
@@ -78,10 +78,28 @@ Show application version\&.
 Show application version\&.
 .RE
 
+.SH CONFIGURATION FILE
+The configuration file is a text file that follow these rules:
+.LP
+- Miniflux expects each line to be in KEY=VALUE format.
+.br
+- Lines beginning with # are processed as comments and ignored.
+.br
+- Blank lines are ignored.
+.br
+- There is no variable interpolation.
+.PP
+Keys are the same as the environment variables described below.
+.br
+Environment variables override the values defined in the config file.
+
 .SH ENVIRONMENT
 .TP
 .B DEBUG
 Set the value to 1 to enable debug logs\&.
+.TP
+.B LOG_DATE_TIME
+Display the date and time in log messages\&.
 .TP
 .B WORKER_POOL_SIZE
 Number of background workers (default is 5)\&.
@@ -193,12 +211,12 @@ Default is 20 seconds\&.
 .B HTTP_CLIENT_MAX_BODY_SIZE
 Maximum body size for HTTP requests in Mebibyte (MiB)\&.
 .br
-Default is 20 MiB\&.
+Default is 15 MiB\&.
 
 .SH AUTHORS
-.sp
+.P
 Miniflux is written and maintained by Fr\['e]d\['e]ric Guillot\&.
 
 .SH "COPYRIGHT"
-.sp
+.P
 Miniflux is released under the Apache 2.0 license\&.
