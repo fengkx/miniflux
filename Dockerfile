@@ -1,5 +1,6 @@
 FROM golang:1.12-alpine3.10 as build
 ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.io
 WORKDIR /go/src/app
 RUN apk add --no-cache --update build-base git
 COPY . .
