@@ -245,14 +245,15 @@ func (s *Storage) UpdateFeed(feed *model.Feed) (err error) {
 			scraper_rules=$10,
 			rewrite_rules=$11,
 			title_filter=$12,
-			content_filter=$13
+			content_filter=$13,
 			crawler=$14,
 			user_agent=$15,
 			username=$16,
 			password=$17,
-			disabled=$18
+			use_mercury=$18,
+			disabled=$19
 		WHERE
-			id=$19 AND user_id=$20
+			id=$20 AND user_id=$21
 	`
 
 	_, err = s.db.Exec(query,
