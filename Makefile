@@ -6,6 +6,7 @@ LD_FLAGS := "-s -w -X 'miniflux.app/version.Version=$(VERSION)' -X 'miniflux.app
 PKG_LIST := $(shell go list ./... | grep -v /vendor/)
 DB_URL := postgres://postgres:postgres@localhost/miniflux_test?sslmode=disable
 
+export PGPASSWORD := postgres
 export GO111MODULE=on
 
 .PHONY: generate \
@@ -32,6 +33,7 @@ export GO111MODULE=on
 	lint \
 	integration-test \
 	clean-integration-test \
+	docker-image \
 	docker-images \
 	docker-manifest
 
@@ -99,7 +101,7 @@ test:
 	go test -mod=vendor -cover -race -count=1 ./...
 
 lint:
-	@ golint -set_exit_status ${PKG_LIST}
+	golint -set_exit_status ${PKG_LIST}
 
 integration-test:
 	psql -U postgres -c 'drop database if exists miniflux_test;'
@@ -109,7 +111,7 @@ integration-test:
 	go build -mod=vendor -o miniflux-test main.go
 	DATABASE_URL=$(DB_URL) ./miniflux-test -debug >/tmp/miniflux.log 2>&1 & echo "$$!" > "/tmp/miniflux.pid"
 	while ! echo exit | nc localhost 8080; do sleep 1; done >/dev/null
-	go test -mod=vendor -v -tags=integration -count=1 miniflux.app/tests || cat /tmp/miniflux.log
+	go test -mod=vendor -v -tags=integration -count=1 miniflux.app/tests
 
 clean-integration-test:
 	@ kill -9 `cat /tmp/miniflux.pid`
@@ -117,11 +119,20 @@ clean-integration-test:
 	@ rm miniflux-test
 	@ psql -U postgres -c 'drop database if exists miniflux_test;'
 
+docker-image:
+	cp Dockerfile Dockerfile.amd64
+	sed -i.bak "s/__BASEIMAGE_ARCH__/amd64/" Dockerfile.amd64
+	sed -i.bak "s/__MINIFLUX_VERSION__/$(VERSION)/" Dockerfile.amd64
+	sed -i.bak "s/__MINIFLUX_ARCH__/amd64/" Dockerfile.amd64
+	docker build --pull -f Dockerfile.amd64 -t $(DOCKER_IMAGE):$(VERSION) .
+	rm -f Dockerfile.amd64*
+
 docker-images:
-	for arch in amd64 arm32v6 arm64v8; do \
+	for arch in amd64 arm32v6 arm32v7 arm64v8; do \
 	  case $${arch} in \
 		amd64   ) miniflux_arch="amd64";; \
 		arm32v6 ) miniflux_arch="armv6";; \
+		arm32v7 ) miniflux_arch="armv7";; \
 		arm64v8 ) miniflux_arch="armv8";; \
 	  esac ;\
 	  cp Dockerfile Dockerfile.$${arch} && \
@@ -137,13 +148,17 @@ docker-manifest:
 	for version in $(VERSION) latest; do \
 		docker push $(DOCKER_IMAGE):amd64-$${version} && \
 		docker push $(DOCKER_IMAGE):arm32v6-$${version} && \
+		docker push $(DOCKER_IMAGE):arm32v7-$${version} && \
 		docker push $(DOCKER_IMAGE):arm64v8-$${version} && \
 		docker manifest create --amend $(DOCKER_IMAGE):$${version} \
 			$(DOCKER_IMAGE):amd64-$${version} \
 			$(DOCKER_IMAGE):arm32v6-$${version} \
+			$(DOCKER_IMAGE):arm32v7-$${version} \
 			$(DOCKER_IMAGE):arm64v8-$${version} && \
 		docker manifest annotate $(DOCKER_IMAGE):$${version} \
 			$(DOCKER_IMAGE):arm32v6-$${version} --os linux --arch arm --variant v6 && \
+		docker manifest annotate $(DOCKER_IMAGE):$${version} \
+			$(DOCKER_IMAGE):arm32v7-$${version} --os linux --arch arm --variant v7 && \
 		docker manifest annotate $(DOCKER_IMAGE):$${version} \
 			$(DOCKER_IMAGE):arm64v8-$${version} --os linux --arch arm64 --variant v8 && \
 		docker manifest push --purge $(DOCKER_IMAGE):$${version} ;\

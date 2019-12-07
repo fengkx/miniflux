@@ -34,7 +34,7 @@ func TestParseAtomSample(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Title != "Example Feed" {
@@ -88,7 +88,7 @@ func TestParseFeedWithoutTitle(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Title != "https://example.org/" {
@@ -119,7 +119,7 @@ func TestParseEntryWithoutTitle(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Entries[0].Title != "http://example.org/2003/12/13/atom03" {
@@ -138,7 +138,7 @@ func TestParseFeedURL(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.SiteURL != "https://example.org/" {
@@ -168,7 +168,7 @@ func TestParseEntryWithRelativeURL(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Entries[0].URL != "http://example.org/something.html" {
@@ -196,7 +196,7 @@ func TestParseEntryTitleWithWhitespaces(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Entries[0].Title != "Some Title" {
@@ -222,7 +222,7 @@ func TestParseEntryTitleWithHTMLAndCDATA(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Entries[0].Title != "Test “Test”" {
@@ -248,7 +248,7 @@ func TestParseEntryTitleWithHTML(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Entries[0].Title != "Test Test" {
@@ -274,7 +274,7 @@ func TestParseEntryTitleWithXHTML(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Entries[0].Title != "Test Test" {
@@ -300,7 +300,7 @@ func TestParseEntrySummaryWithXHTML(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Entries[0].Content != "<p>Some text.</p>" {
@@ -326,7 +326,7 @@ func TestParseEntrySummaryWithHTML(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Entries[0].Content != "<p>Some text.</p>" {
@@ -352,7 +352,7 @@ func TestParseEntrySummaryWithPlainText(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Entries[0].Content != "&lt;Some text.&gt;" {
@@ -381,7 +381,7 @@ func TestParseEntryWithAuthorName(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Entries[0].Author != "Me" {
@@ -410,7 +410,7 @@ func TestParseEntryWithoutAuthorName(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if feed.Entries[0].Author != "me@localhost" {
@@ -460,7 +460,7 @@ func TestParseEntryWithEnclosures(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if len(feed.Entries) != 1 {
@@ -472,31 +472,30 @@ func TestParseEntryWithEnclosures(t *testing.T) {
 	}
 
 	if len(feed.Entries[0].Enclosures) != 2 {
-		t.Errorf("Incorrect number of enclosures, got: %d", len(feed.Entries[0].Enclosures))
+		t.Fatalf("Incorrect number of enclosures, got: %d", len(feed.Entries[0].Enclosures))
 	}
 
-	if feed.Entries[0].Enclosures[0].URL != "http://www.example.org/myaudiofile.mp3" {
-		t.Errorf("Incorrect enclosure URL, got: %s", feed.Entries[0].Enclosures[0].URL)
+	expectedResults := []struct {
+		url      string
+		mimeType string
+		size     int64
+	}{
+		{"http://www.example.org/myaudiofile.mp3", "audio/mpeg", 1234},
+		{"http://www.example.org/myaudiofile.torrent", "application/x-bittorrent", 4567},
 	}
 
-	if feed.Entries[0].Enclosures[0].MimeType != "audio/mpeg" {
-		t.Errorf("Incorrect enclosure type, got: %s", feed.Entries[0].Enclosures[0].MimeType)
-	}
+	for index, enclosure := range feed.Entries[0].Enclosures {
+		if expectedResults[index].url != enclosure.URL {
+			t.Errorf(`Unexpected enclosure URL, got %q instead of %q`, enclosure.URL, expectedResults[index].url)
+		}
 
-	if feed.Entries[0].Enclosures[0].Size != 1234 {
-		t.Errorf("Incorrect enclosure length, got: %d", feed.Entries[0].Enclosures[0].Size)
-	}
+		if expectedResults[index].mimeType != enclosure.MimeType {
+			t.Errorf(`Unexpected enclosure type, got %q instead of %q`, enclosure.MimeType, expectedResults[index].mimeType)
+		}
 
-	if feed.Entries[0].Enclosures[1].URL != "http://www.example.org/myaudiofile.torrent" {
-		t.Errorf("Incorrect enclosure URL, got: %s", feed.Entries[0].Enclosures[1].URL)
-	}
-
-	if feed.Entries[0].Enclosures[1].MimeType != "application/x-bittorrent" {
-		t.Errorf("Incorrect enclosure type, got: %s", feed.Entries[0].Enclosures[1].MimeType)
-	}
-
-	if feed.Entries[0].Enclosures[1].Size != 4567 {
-		t.Errorf("Incorrect enclosure length, got: %d", feed.Entries[0].Enclosures[1].Size)
+		if expectedResults[index].size != enclosure.Size {
+			t.Errorf(`Unexpected enclosure size, got %d instead of %d`, enclosure.Size, expectedResults[index].size)
+		}
 	}
 }
 
@@ -517,7 +516,7 @@ func TestParseEntryWithPublished(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if !feed.Entries[0].Date.Equal(time.Date(2003, time.December, 13, 18, 30, 2, 0, time.UTC)) {
@@ -543,7 +542,7 @@ func TestParseEntryWithPublishedAndUpdated(t *testing.T) {
 
 	feed, err := Parse(bytes.NewBufferString(data))
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if !feed.Entries[0].Date.Equal(time.Date(2002, time.November, 12, 18, 30, 2, 0, time.UTC)) {
@@ -556,5 +555,177 @@ func TestParseInvalidXml(t *testing.T) {
 	_, err := Parse(bytes.NewBufferString(data))
 	if err == nil {
 		t.Error("Parse should returns an error")
+	}
+}
+
+func TestParseWithHTMLEntity(t *testing.T) {
+	data := `
+		<?xml version="1.0" encoding="utf-8"?>
+		<feed xmlns="http://www.w3.org/2005/Atom">
+			<title>Example &nbsp; Feed</title>
+			<link href="http://example.org/"/>
+		</feed>
+	`
+
+	feed, err := Parse(bytes.NewBufferString(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if feed.Title != "Example \u00a0 Feed" {
+		t.Errorf(`Incorrect title, got: %q`, feed.Title)
+	}
+}
+
+func TestParseWithInvalidCharacterEntity(t *testing.T) {
+	data := `
+		<?xml version="1.0" encoding="utf-8"?>
+		<feed xmlns="http://www.w3.org/2005/Atom">
+			<title>Example Feed</title>
+			<link href="http://example.org/a&b"/>
+		</feed>
+	`
+
+	feed, err := Parse(bytes.NewBufferString(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if feed.SiteURL != "http://example.org/a&b" {
+		t.Errorf(`Incorrect URL, got: %q`, feed.SiteURL)
+	}
+}
+
+func TestParseMediaGroup(t *testing.T) {
+	data := `<?xml version="1.0" encoding="utf-8"?>
+	<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
+		<id>http://www.example.org/myfeed</id>
+		<title>My Video Feed</title>
+		<updated>2005-07-15T12:00:00Z</updated>
+		<link href="http://example.org" />
+		<link rel="self" href="http://example.org/myfeed" />
+		<entry>
+			<id>http://www.example.org/entries/1</id>
+			<title>Some Video</title>
+			<updated>2005-07-15T12:00:00Z</updated>
+			<link href="http://www.example.org/entries/1" />
+			<media:group>
+				<media:title>Another title</media:title>
+				<media:content url="https://www.youtube.com/v/abcd" type="application/x-shockwave-flash" width="640" height="390"/>
+				<media:thumbnail url="https://example.org/thumbnail.jpg" width="480" height="360"/>
+				<media:description>Some description
+A website: http://example.org/</media:description>
+			</media:group>
+		</entry>
+  	</feed>`
+
+	feed, err := Parse(bytes.NewBufferString(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(feed.Entries) != 1 {
+		t.Errorf("Incorrect number of entries, got: %d", len(feed.Entries))
+	}
+
+	if feed.Entries[0].URL != "http://www.example.org/entries/1" {
+		t.Errorf("Incorrect entry URL, got: %s", feed.Entries[0].URL)
+	}
+
+	if feed.Entries[0].Content != `Some description<br>A website: <a href="http://example.org/">http://example.org/</a>` {
+		t.Errorf("Incorrect entry content, got: %q", feed.Entries[0].Content)
+	}
+
+	if len(feed.Entries[0].Enclosures) != 2 {
+		t.Fatalf("Incorrect number of enclosures, got: %d", len(feed.Entries[0].Enclosures))
+	}
+
+	expectedResults := []struct {
+		url      string
+		mimeType string
+		size     int64
+	}{
+		{"https://example.org/thumbnail.jpg", "image/*", 0},
+		{"https://www.youtube.com/v/abcd", "application/x-shockwave-flash", 0},
+	}
+
+	for index, enclosure := range feed.Entries[0].Enclosures {
+		if expectedResults[index].url != enclosure.URL {
+			t.Errorf(`Unexpected enclosure URL, got %q instead of %q`, enclosure.URL, expectedResults[index].url)
+		}
+
+		if expectedResults[index].mimeType != enclosure.MimeType {
+			t.Errorf(`Unexpected enclosure type, got %q instead of %q`, enclosure.MimeType, expectedResults[index].mimeType)
+		}
+
+		if expectedResults[index].size != enclosure.Size {
+			t.Errorf(`Unexpected enclosure size, got %d instead of %d`, enclosure.Size, expectedResults[index].size)
+		}
+	}
+}
+
+func TestParseMediaElements(t *testing.T) {
+	data := `<?xml version="1.0" encoding="utf-8"?>
+	<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
+		<id>http://www.example.org/myfeed</id>
+		<title>My Video Feed</title>
+		<updated>2005-07-15T12:00:00Z</updated>
+		<link href="http://example.org" />
+		<link rel="self" href="http://example.org/myfeed" />
+		<entry>
+			<id>http://www.example.org/entries/1</id>
+			<title>Some Video</title>
+			<updated>2005-07-15T12:00:00Z</updated>
+			<link href="http://www.example.org/entries/1" />
+			<media:title>Another title</media:title>
+			<media:content url="https://www.youtube.com/v/abcd" type="application/x-shockwave-flash" width="640" height="390"/>
+			<media:thumbnail url="https://example.org/thumbnail.jpg" width="480" height="360"/>
+			<media:description>Some description
+A website: http://example.org/</media:description>
+		</entry>
+  	</feed>`
+
+	feed, err := Parse(bytes.NewBufferString(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(feed.Entries) != 1 {
+		t.Errorf("Incorrect number of entries, got: %d", len(feed.Entries))
+	}
+
+	if feed.Entries[0].URL != "http://www.example.org/entries/1" {
+		t.Errorf("Incorrect entry URL, got: %s", feed.Entries[0].URL)
+	}
+
+	if feed.Entries[0].Content != `Some description<br>A website: <a href="http://example.org/">http://example.org/</a>` {
+		t.Errorf("Incorrect entry content, got: %q", feed.Entries[0].Content)
+	}
+
+	if len(feed.Entries[0].Enclosures) != 2 {
+		t.Fatalf("Incorrect number of enclosures, got: %d", len(feed.Entries[0].Enclosures))
+	}
+
+	expectedResults := []struct {
+		url      string
+		mimeType string
+		size     int64
+	}{
+		{"https://example.org/thumbnail.jpg", "image/*", 0},
+		{"https://www.youtube.com/v/abcd", "application/x-shockwave-flash", 0},
+	}
+
+	for index, enclosure := range feed.Entries[0].Enclosures {
+		if expectedResults[index].url != enclosure.URL {
+			t.Errorf(`Unexpected enclosure URL, got %q instead of %q`, enclosure.URL, expectedResults[index].url)
+		}
+
+		if expectedResults[index].mimeType != enclosure.MimeType {
+			t.Errorf(`Unexpected enclosure type, got %q instead of %q`, enclosure.MimeType, expectedResults[index].mimeType)
+		}
+
+		if expectedResults[index].size != enclosure.Size {
+			t.Errorf(`Unexpected enclosure size, got %d instead of %d`, enclosure.Size, expectedResults[index].size)
+		}
 	}
 }

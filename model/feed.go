@@ -36,6 +36,8 @@ type Feed struct {
 	Category           *Category `json:"category,omitempty"`
 	Entries            Entries   `json:"entries,omitempty"`
 	Icon               *FeedIcon `json:"icon"`
+	UnreadCount        int       `json:"-"`
+	ReadCount          int       `json:"-"`
 }
 
 func (f *Feed) String() string {
@@ -62,11 +64,13 @@ func (f *Feed) WithCategoryID(categoryID int64) {
 }
 
 // WithBrowsingParameters defines browsing parameters.
-func (f *Feed) WithBrowsingParameters(crawler bool, userAgent, username, password string) {
+func (f *Feed) WithBrowsingParameters(crawler bool, userAgent, username, password, scraperRules, rewriteRules string) {
 	f.Crawler = crawler
 	f.UserAgent = userAgent
 	f.Username = username
 	f.Password = password
+	f.ScraperRules = scraperRules
+	f.RewriteRules = rewriteRules
 }
 
 // WithError adds a new error message and increment the error counter.

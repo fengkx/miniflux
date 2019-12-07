@@ -5,20 +5,17 @@
 package atom // import "miniflux.app/reader/atom"
 
 import (
-	"encoding/xml"
 	"io"
 
 	"miniflux.app/errors"
 	"miniflux.app/model"
-	"miniflux.app/reader/encoding"
+	"miniflux.app/reader/xml"
 )
 
 // Parse returns a normalized feed struct from a Atom feed.
 func Parse(data io.Reader) (*model.Feed, *errors.LocalizedError) {
 	atomFeed := new(atomFeed)
 	decoder := xml.NewDecoder(data)
-	decoder.CharsetReader = encoding.CharsetReader
-
 	err := decoder.Decode(atomFeed)
 	if err != nil {
 		return nil, errors.NewLocalizedError("Unable to parse Atom feed: %q", err)

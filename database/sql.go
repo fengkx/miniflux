@@ -152,6 +152,11 @@ alter table feeds add content_filter text default '';`,
 	"schema_version_25": `alter table users add column mercury_parser_api_url text default '';
 alter table feeds add column use_mercury bool default false;`,
 	"schema_version_26": `alter table feeds add column disabled boolean default 'f';`,
+	"schema_version_27": `ALTER TABLE users ALTER COLUMN theme SET DEFAULT 'light_serif';
+UPDATE users SET theme='light_serif' WHERE theme='default';
+UPDATE users SET theme='light_sans_serif' WHERE theme='sansserif';
+UPDATE users SET theme='dark_serif' WHERE theme='black';
+`,
 	"schema_version_3": `create table tokens (
     id text not null,
     value text not null,
@@ -206,6 +211,7 @@ var SqlMapChecksums = map[string]string{
 	"schema_version_24": "96490f3f3c233ec975fcbabf68321744f146c8971bca0408882a027c740b7e64",
 	"schema_version_25": "c015242eb9b9e3a46caae216f6ee689334c5bcd085b0b057d72b6290acf5c7b4",
 	"schema_version_26": "1224754c5b9c6b4038599852bbe72656d21b09cb018d3970bd7c00f0019845bf",
+	"schema_version_27": "5262d2d4c88d637b6603a1fcd4f68ad257bd59bd1adf89c58a18ee87b12050d7",
 	"schema_version_3":  "a54745dbc1c51c000f74d4e5068f1e2f43e83309f023415b1749a47d5c1e0f12",
 	"schema_version_4":  "216ea3a7d3e1704e40c797b5dc47456517c27dbb6ca98bf88812f4f63d74b5d9",
 	"schema_version_5":  "46397e2f5f2c82116786127e9f6a403e975b14d2ca7b652a48cd1ba843e6a27c",
