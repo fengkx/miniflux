@@ -30,7 +30,7 @@ type EntryQueryBuilder struct {
 func (e *EntryQueryBuilder) WithSearchQuery(query string) *EntryQueryBuilder {
 	if query != "" {
 		nArgs := len(e.args) + 1
-		e.conditions = append(e.conditions, fmt.Sprintf("e.document_vectors @@ plainto_tsquery($%d)", nArgs))
+		e.conditions = append(e.conditions, fmt.Sprintf("e.document_vectors @@ plainto_tsquery('chinese', $%d)", nArgs))
 		e.args = append(e.args, query)
 		e.WithOrder(fmt.Sprintf("ts_rank(document_vectors, plainto_tsquery($%d))", nArgs))
 		e.WithDirection("DESC")
