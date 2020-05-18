@@ -155,7 +155,25 @@ alter table feeds add column use_mercury bool default false;`,
 	"schema_version_27": `ALTER TABLE users ALTER COLUMN theme SET DEFAULT 'light_serif';
 UPDATE users SET theme='light_serif' WHERE theme='default';
 UPDATE users SET theme='light_sans_serif' WHERE theme='sansserif';
-UPDATE users SET theme='dark_serif' WHERE theme='black';
+UPDATE users SET theme='dark_serif' WHERE theme='black';`,
+	"schema_version_28": `alter table entries add column changed_at timestamp with time zone;
+update entries set changed_at = published_at;
+alter table entries alter column changed_at set not null;
+
+create table api_keys (
+    id serial not null,
+    user_id int not null references users(id) on delete cascade,
+    token text not null unique,
+    description text not null,
+    last_used_at timestamp with time zone,
+    created_at timestamp with time zone default now(),
+    primary key(id),
+    unique (user_id, description)
+);
+
+
+alter table entries add column share_code text not null default '';
+create unique index entries_share_code_idx on entries using btree(share_code) where share_code <> '';
 `,
 	"schema_version_3": `create table tokens (
     id text not null,
@@ -211,7 +229,8 @@ var SqlMapChecksums = map[string]string{
 	"schema_version_24": "96490f3f3c233ec975fcbabf68321744f146c8971bca0408882a027c740b7e64",
 	"schema_version_25": "c015242eb9b9e3a46caae216f6ee689334c5bcd085b0b057d72b6290acf5c7b4",
 	"schema_version_26": "1224754c5b9c6b4038599852bbe72656d21b09cb018d3970bd7c00f0019845bf",
-	"schema_version_27": "5262d2d4c88d637b6603a1fcd4f68ad257bd59bd1adf89c58a18ee87b12050d7",
+	"schema_version_27": "f8e492fba2fc6324dec234cb715180cd6d2d632aa60b0d63cad02b2a104acef6",
+	"schema_version_28": "10bc999a87dbf9d7290e10a29b14144b4fd6fd9ecbc8b6f8251fe7711f9b65d7",
 	"schema_version_3":  "a54745dbc1c51c000f74d4e5068f1e2f43e83309f023415b1749a47d5c1e0f12",
 	"schema_version_4":  "216ea3a7d3e1704e40c797b5dc47456517c27dbb6ca98bf88812f4f63d74b5d9",
 	"schema_version_5":  "46397e2f5f2c82116786127e9f6a403e975b14d2ca7b652a48cd1ba843e6a27c",

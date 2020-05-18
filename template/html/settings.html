@@ -51,6 +51,7 @@
 
     <label><input type="checkbox" name="keyboard_shortcuts" value="1" {{ if .form.KeyboardShortcuts }}checked{{ end }}> {{ t "form.prefs.label.keyboard_shortcuts" }}</label>
 
+    <label>{{t "form.prefs.label.custom_css" }}</label><textarea name="custom_css" cols="40" rows="5">{{ .form.CustomCSS }}</textarea>
     <label for="form-mercury_api_url">{{ t "form.user.label.mercury_api_url" }}</label>
     <input type="text" name="mercury_api_url" id="form-mercury_api_url" value="{{ .form.MercuryAPIURL }}">
 
@@ -65,6 +66,14 @@
         <a href="{{ route "oauth2Unlink" "provider" "google" }}">{{ t "page.settings.unlink_google_account" }}</a>
     {{ else }}
         <a href="{{ route "oauth2Redirect" "provider" "google" }}">{{ t "page.settings.link_google_account" }}</a>
+    {{ end }}
+</div>
+{{ else if hasOAuth2Provider "oidc" }}
+<div class="panel">
+    {{ if hasKey .user.Extra "oidc_id" }}
+        <a href="{{ route "oauth2Unlink" "provider" "oidc" }}">{{ t "page.settings.unlink_oidc_account" }}</a>
+    {{ else }}
+        <a href="{{ route "oauth2Redirect" "provider" "oidc" }}">{{ t "page.settings.link_oidc_account" }}</a>
     {{ end }}
 </div>
 {{ end }}

@@ -21,6 +21,7 @@ type SettingsForm struct {
 	Timezone          string
 	EntryDirection    string
 	KeyboardShortcuts bool
+	CustomCSS         string
 	MercuryAPIURL     string
 }
 
@@ -32,6 +33,7 @@ func (s *SettingsForm) Merge(user *model.User) *model.User {
 	user.Timezone = s.Timezone
 	user.EntryDirection = s.EntryDirection
 	user.KeyboardShortcuts = s.KeyboardShortcuts
+	user.Extra["custom_css"] = s.CustomCSS
 	user.MercuryAPIURL = s.MercuryAPIURL
 	if s.Password != "" {
 		user.Password = s.Password
@@ -75,6 +77,7 @@ func NewSettingsForm(r *http.Request) *SettingsForm {
 		Timezone:          r.FormValue("timezone"),
 		EntryDirection:    r.FormValue("entry_direction"),
 		KeyboardShortcuts: r.FormValue("keyboard_shortcuts") == "1",
+		CustomCSS:         r.FormValue("custom_css"),
 		MercuryAPIURL:     r.FormValue("mercury_api_url"),
 	}
 }

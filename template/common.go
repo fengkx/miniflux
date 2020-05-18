@@ -7,7 +7,7 @@ var templateCommonMap = map[string]string{
 <div class="pagination">
     <div class="pagination-prev">
         {{ if .prevEntry }}
-            <a href="{{ .prevEntryRoute }}{{ if .searchQuery }}?q={{ .searchQuery }}{{ end }}" title="{{ .prevEntry.Title }}" data-page="previous">{{ t "pagination.previous" }}</a>
+            <a href="{{ .prevEntryRoute }}{{ if .searchQuery }}?q={{ .searchQuery }}{{ end }}" title="{{ .prevEntry.Title }}" data-page="previous" rel="prev">{{ t "pagination.previous" }}</a>
         {{ else }}
             {{ t "pagination.previous" }}
         {{ end }}
@@ -15,13 +15,14 @@ var templateCommonMap = map[string]string{
 
     <div class="pagination-next">
         {{ if .nextEntry }}
-            <a href="{{ .nextEntryRoute }}{{ if .searchQuery }}?q={{ .searchQuery }}{{ end }}" title="{{ .nextEntry.Title }}" data-page="next">{{ t "pagination.next" }}</a>
+            <a href="{{ .nextEntryRoute }}{{ if .searchQuery }}?q={{ .searchQuery }}{{ end }}" title="{{ .nextEntry.Title }}" data-page="next" rel="next">{{ t "pagination.next" }}</a>
         {{ else }}
             {{ t "pagination.next" }}
         {{ end }}
     </div>
 </div>
-{{ end }}`,
+{{ end }}
+`,
 	"feed_list": `{{ define "feed_list" }}
     <div class="items">
         {{ range .feeds }}
@@ -42,15 +43,15 @@ var templateCommonMap = map[string]string{
                 </span>
             </div>
             <div class="item-meta">
-                <ul>
+                <ul class="item-meta-info">
                     <li>
-                        <a href="{{ .SiteURL }}" title="{{ .SiteURL }}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" data-original-link="true">{{ domain .SiteURL }}</a>
+                        <a href="{{ .SiteURL | safeURL  }}" title="{{ .SiteURL }}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" data-original-link="true">{{ domain .SiteURL }}</a>
                     </li>
                     <li>
                         {{ t "page.feeds.last_check" }} <time datetime="{{ isodate .CheckedAt }}" title="{{ isodate .CheckedAt }}">{{ elapsed $.user.Timezone .CheckedAt }}</time>
                     </li>
                 </ul>
-                <ul>
+                <ul class="item-meta-info">
                     <li>
                         <a href="{{ route "refreshFeed" "feedID" .ID }}">{{ t "menu.refresh_feed" }}</a>
                     </li>
@@ -78,15 +79,141 @@ var templateCommonMap = map[string]string{
         {{ end }}
     </div>
 {{ end }}`,
+	"feed_menu": `{{ define "feed_menu" }}
+<ul>
+    <li>
+        <a href="{{ route "feeds" }}">{{ t "menu.feeds" }}</a>
+    </li>
+    <li>
+        <a href="{{ route "addSubscription" }}">{{ t "menu.add_feed" }}</a>
+    </li>
+    <li>
+        <a href="{{ route "export" }}">{{ t "menu.export" }}</a>
+    </li>
+    <li>
+        <a href="{{ route "import" }}">{{ t "menu.import" }}</a>
+    </li>
+    <li>
+        <a href="{{ route "refreshAllFeeds" }}">{{ t "menu.refresh_all_feeds" }}</a>
+    </li>
+</ul>
+{{ end }}`,
+	"icons": `<!--
+
+MIT License
+
+Copyright (c) 2020 Paweł Kuna
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-->
+{{ define "icon_read" }}
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9 12l2 2l4 -4" />
+</svg>
+{{ end }}
+{{ define "icon_unread" }}
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M10 10l4 4m0 -4l-4 4" />
+</svg>
+{{ end }}
+{{ define "icon_star" }}
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-star" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <path d="M12 17.75l-6.172 3.245 1.179-6.873-4.993-4.867 6.9-1.002L12 2l3.086 6.253 6.9 1.002-4.993 4.867 1.179 6.873z" />
+</svg>
+{{ end }}
+{{ define "icon_save" }}
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+    <polyline points="7 11 12 16 17 11" />
+    <line x1="12" y1="4" x2="12" y2="16" />
+</svg>
+{{ end }}
+{{ define "icon_scraper" }}
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cloud-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <path d="M19 18a3.5 3.5 0 0 0 0 -7h-1a5 4.5 0 0 0 -11 -2a4.6 4.4 0 0 0 -2.1 8.4" />
+    <line x1="12" y1="13" x2="12" y2="22" />
+    <polyline points="9 19 12 22 15 19" />
+</svg>
+{{ end }}
+{{ define "icon_share" }}
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-share" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="6" cy="12" r="3" />
+    <circle cx="18" cy="6" r="3" />
+    <circle cx="18" cy="18" r="3" />
+    <line x1="8.7" y1="10.7" x2="15.3" y2="7.3" />
+    <line x1="8.7" y1="13.3" x2="15.3" y2="16.7" />
+</svg>
+{{ end }}
+{{ define "icon_comment" }}
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-message-circle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <path d="M3 20l1.3 -3.9a9 8 0 1 1 3.4 2.9l-4.7 1" />
+    <line x1="12" y1="12" x2="12" y2="12.01" />
+    <line x1="8" y1="12" x2="8" y2="12.01" />
+    <line x1="16" y1="12" x2="16" y2="12.01" />
+</svg>
+{{ end }}
+{{ define "icon_original" }}
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-external-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <path d="M11 7h-5a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-5" />
+    <line x1="10" y1="14" x2="20" y2="4" />
+    <polyline points="15 4 20 4 20 9" />
+</svg>
+{{ end }}
+{{ define "icon_delete" }}
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <line x1="4" y1="7" x2="20" y2="7" />
+    <line x1="10" y1="11" x2="10" y2="17" />
+    <line x1="14" y1="11" x2="14" y2="17" />
+    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+</svg>
+{{ end }}`,
 	"item_meta": `{{ define "item_meta" }}
 <div class="item-meta">
-    <ul>
+    <ul class="item-meta-info">
         <li>
             <a href="{{ route "feedEntries" "feedID" .entry.Feed.ID }}" title="{{ .entry.Feed.SiteURL }}">{{ truncate .entry.Feed.Title 35 }}</a>
         </li>
         <li>
             <time datetime="{{ isodate .entry.Date }}" title="{{ isodate .entry.Date }}">{{ elapsed .user.Timezone .entry.Date }}</time>
         </li>
+    </ul>
+    <ul class="item-meta-icons">
+        {{ if .entry.ShareCode }}
+            <li>
+                <a href="{{ route "sharedEntry" "shareCode" .entry.ShareCode }}"
+                    title="{{ t "entry.shared_entry.title" }}"
+                    target="_blank">{{ template "icon_share" }}<span class="icon-label">{{ t "entry.shared_entry.label" }}</span></a>
+            </li>
+        {{ end }}
         {{ if .hasSaveEntry }}
             <li>
                 <a href="#"
@@ -95,15 +222,24 @@ var templateCommonMap = map[string]string{
                     data-save-url="{{ route "saveEntry" "entryID" .entry.ID }}"
                     data-label-loading="{{ t "entry.state.saving" }}"
                     data-label-done="{{ t "entry.save.completed" }}"
-                    >{{ t "entry.save.label" }}</a>
+                    >{{ template "icon_save" }}<span class="icon-label">{{ t "entry.save.label" }}</span></a>
             </li>
         {{ end }}
         <li>
-            <a href="{{ .entry.URL }}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" data-original-link="true">{{ t "entry.original.label" }}</a>
+            <a href="{{ .entry.URL | safeURL  }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                referrerpolicy="no-referrer"
+                data-original-link="true">{{ template "icon_original" }}<span class="icon-label">{{ t "entry.original.label" }}</span></a>
         </li>
         {{ if .entry.CommentsURL }}
             <li>
-                <a href="{{ .entry.CommentsURL }}" title="{{ t "entry.comments.title" }}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">{{ t "entry.comments.label" }}</a>
+                <a href="{{ .entry.CommentsURL | safeURL  }}"
+                    title="{{ t "entry.comments.title" }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    referrerpolicy="no-referrer"
+                    data-comments-link="true">{{ template "icon_comment" }}<span class="icon-label">{{ t "entry.comments.label" }}</span></a>
             </li>
         {{ end }}
         <li>
@@ -114,20 +250,21 @@ var templateCommonMap = map[string]string{
                 data-label-star="☆&nbsp;{{ t "entry.bookmark.toggle.on" }}"
                 data-label-unstar="★&nbsp;{{ t "entry.bookmark.toggle.off" }}"
                 data-value="{{ if .entry.Starred }}star{{ else }}unstar{{ end }}"
-                >{{ if .entry.Starred }}★&nbsp;{{ t "entry.bookmark.toggle.off" }}{{ else }}☆&nbsp;{{ t "entry.bookmark.toggle.on" }}{{ end }}</a>
+                ><span class="icon-label">{{ if .entry.Starred }}★&nbsp;{{ t "entry.bookmark.toggle.off" }}{{ else }}☆&nbsp;{{ t "entry.bookmark.toggle.on" }}{{ end }}</span></a>
         </li>
         <li>
             <a href="#"
                 title="{{ t "entry.status.title" }}"
                 data-toggle-status="true"
-                data-label-read="✔&#xfe0e;&nbsp;{{ t "entry.status.read" }}"
+                data-label-read="✔&nbsp;{{ t "entry.status.read" }}"
                 data-label-unread="✘&nbsp;{{ t "entry.status.unread" }}"
                 data-value="{{ if eq .entry.Status "read" }}read{{ else }}unread{{ end }}"
-                >{{ if eq .entry.Status "read" }}✘&nbsp;{{ t "entry.status.unread" }}{{ else }}✔&#xfe0e;&nbsp;{{ t "entry.status.read" }}{{ end }}</a>
+                ><span class="icon-label">{{ if eq .entry.Status "read" }}✘&nbsp;{{ t "entry.status.unread" }}{{ else }}✔&nbsp;{{ t "entry.status.read" }}{{ end }}</span></a>
         </li>
     </ul>
 </div>
-{{ end }}`,
+{{ end }}
+`,
 	"layout": `{{ define "base" }}
 <!DOCTYPE html>
 <html>
@@ -165,6 +302,9 @@ var templateCommonMap = map[string]string{
 
     <meta name="theme-color" content="{{ theme_color .theme }}">
     <link rel="stylesheet" type="text/css" href="{{ route "stylesheet" "name" .theme }}?{{ .theme_checksum }}">
+    {{ if .user }} {{ if ne (index .user.Extra "custom_css") ("") }}
+    <link rel="stylesheet" type="text/css" href="{{ route "stylesheet" "name" "custom_css" }}">
+    {{ end }}{{ end }}
 
     <script type="text/javascript" src="{{ route "javascript" "name" "app" }}?{{ .app_js_checksum }}" defer></script>
     <script type="text/javascript" src="{{ route "javascript" "name" "sw" }}?{{ .sw_js_checksum }}" defer id="service-worker-script"></script>
@@ -267,6 +407,8 @@ var templateCommonMap = map[string]string{
                     <li>{{ t "page.keyboard_shortcuts.open_item" }} = <strong>o</strong></li>
                     <li>{{ t "page.keyboard_shortcuts.open_original" }} = <strong>v</strong></li>
                     <li>{{ t "page.keyboard_shortcuts.open_original_same_window" }} = <strong>V</strong></li>
+                    <li>{{ t "page.keyboard_shortcuts.open_comments" }} = <strong>c</strong></li>
+                    <li>{{ t "page.keyboard_shortcuts.open_comments_same_window" }} = <strong>C</strong></li>
                     <li>{{ t "page.keyboard_shortcuts.toggle_read_status" }} = <strong>m</strong></li>
                     <li>{{ t "page.keyboard_shortcuts.mark_page_as_read" }} = <strong>A</strong></li>
                     <li>{{ t "page.keyboard_shortcuts.download_content" }} = <strong>d</strong></li>
@@ -287,7 +429,7 @@ var templateCommonMap = map[string]string{
 <div class="pagination">
     <div class="pagination-prev">
         {{ if .ShowPrev }}
-            <a href="{{ .Route }}{{ if gt .PrevOffset 0 }}?offset={{ .PrevOffset }}{{ if .SearchQuery }}&amp;q={{ .SearchQuery }}{{ end }}{{ else }}{{ if .SearchQuery }}?q={{ .SearchQuery }}{{ end }}{{ end }}" data-page="previous">{{ t "pagination.previous" }}</a>
+            <a href="{{ .Route }}{{ if gt .PrevOffset 0 }}?offset={{ .PrevOffset }}{{ if .SearchQuery }}&amp;q={{ .SearchQuery }}{{ end }}{{ else }}{{ if .SearchQuery }}?q={{ .SearchQuery }}{{ end }}{{ end }}" data-page="previous" rel="prev">{{ t "pagination.previous" }}</a>
         {{ else }}
             {{ t "pagination.previous" }}
         {{ end }}
@@ -295,7 +437,7 @@ var templateCommonMap = map[string]string{
 
     <div class="pagination-next">
         {{ if .ShowNext }}
-            <a href="{{ .Route }}?offset={{ .NextOffset }}{{ if .SearchQuery }}&amp;q={{ .SearchQuery }}{{ end }}" data-page="next">{{ t "pagination.next" }}</a>
+            <a href="{{ .Route }}?offset={{ .NextOffset }}{{ if .SearchQuery }}&amp;q={{ .SearchQuery }}{{ end }}" data-page="next" rel="next">{{ t "pagination.next" }}</a>
         {{ else }}
             {{ t "pagination.next" }}
         {{ end }}
@@ -312,14 +454,14 @@ var templateCommonMap = map[string]string{
         <a href="{{ route "integrations" }}">{{ t "menu.integrations" }}</a>
     </li>
     <li>
+        <a href="{{ route "apiKeys" }}">{{ t "menu.api_keys" }}</a>
+    </li>
+    <li>
         <a href="{{ route "sessions" }}">{{ t "menu.sessions" }}</a>
     </li>
     {{ if .user.IsAdmin }}
         <li>
             <a href="{{ route "users" }}">{{ t "menu.users" }}</a>
-        </li>
-        <li>
-            <a href="{{ route "createUser" }}">{{ t "menu.add_user" }}</a>
         </li>
     {{ end }}
     <li>
@@ -330,10 +472,12 @@ var templateCommonMap = map[string]string{
 }
 
 var templateCommonMapChecksums = map[string]string{
-	"entry_pagination": "4faa91e2eae150c5e4eab4d258e039dfdd413bab7602f0009360e6d52898e353",
-	"feed_list":        "7b7ea2c7df07d048c83d86237d5b5e41bddce561273c652d9265950093ca261b",
-	"item_meta":        "34deb081a054f2948ad808bdb2c8603d6ab00c58f2f50c4ead0b47ae092888eb",
-	"layout":           "f19597d8cd74e17b33826c25b8421f46fef87276f0d95c695bba8f53bb4f95e6",
-	"pagination":       "3386e90c6e1230311459e9a484629bc5d5bf39514a75ef2e73bbbc61142f7abb",
-	"settings_menu":    "78e5a487ede18610b23db74184dab023170f9e083cc0625bc2c874d1eea1a4ce",
+	"entry_pagination": "cdca9cf12586e41e5355190b06d9168f57f77b85924d1e63b13524bc15abcbf6",
+	"feed_list":        "46cbfc441404dc55c56a9fd7ddc43d98216762f2562f2a17e35eb508dc84246f",
+	"feed_menu":        "318d8662dda5ca9dfc75b909c8461e79c86fb5082df1428f67aaf856f19f4b50",
+	"icons":            "f0d94c2cfa6655b44adaf97f0b95c52a9cff5c31f3a8829ad438e4db7114af7e",
+	"item_meta":        "a5b07cc6597e5c8f3ca849ee486acb3f16f062d8a1eaa47d2fb402ae6825b7ef",
+	"layout":           "a4ed0b69bf16342166358ca9c3cf23c27d61443eca2e5da9fa46ff7474afe55b",
+	"pagination":       "7b61288e86283c4cf0dc83bcbf8bf1c00c7cb29e60201c8c0b633b2450d2911f",
+	"settings_menu":    "e2b777630c0efdbc529800303c01d6744ed3af80ec505ac5a5b3f99c9b989156",
 }

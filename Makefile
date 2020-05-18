@@ -41,64 +41,64 @@ generate:
 	@ go generate -mod=vendor
 
 miniflux: generate
-	@ go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP) main.go
+	@ go build -ldflags=$(LD_FLAGS) -o $(APP) main.go
 
 linux-amd64: generate
-	@ GOOS=linux GOARCH=amd64 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-linux-amd64 main.go
+	@ GOOS=linux GOARCH=amd64 go build -ldflags=$(LD_FLAGS) -o $(APP)-linux-amd64 main.go
 
 linux-armv8: generate
-	@ GOOS=linux GOARCH=arm64 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-linux-armv8 main.go
+	@ GOOS=linux GOARCH=arm64 go build -ldflags=$(LD_FLAGS) -o $(APP)-linux-armv8 main.go
 
 linux-armv7: generate
-	@ GOOS=linux GOARCH=arm GOARM=7 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-linux-armv7 main.go
+	@ GOOS=linux GOARCH=arm GOARM=7 go build -ldflags=$(LD_FLAGS) -o $(APP)-linux-armv7 main.go
 
 linux-armv6: generate
-	@ GOOS=linux GOARCH=arm GOARM=6 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-linux-armv6 main.go
+	@ GOOS=linux GOARCH=arm GOARM=6 go build -ldflags=$(LD_FLAGS) -o $(APP)-linux-armv6 main.go
 
 linux-armv5: generate
-	@ GOOS=linux GOARCH=arm GOARM=5 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-linux-armv5 main.go
+	@ GOOS=linux GOARCH=arm GOARM=5 go build -ldflags=$(LD_FLAGS) -o $(APP)-linux-armv5 main.go
 
 darwin-amd64: generate
-	@ GOOS=darwin GOARCH=amd64 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-darwin-amd64 main.go
+	@ GOOS=darwin GOARCH=amd64 go build -ldflags=$(LD_FLAGS) -o $(APP)-darwin-amd64 main.go
 
 freebsd-amd64: generate
-	@ GOOS=freebsd GOARCH=amd64 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-freebsd-amd64 main.go
+	@ GOOS=freebsd GOARCH=amd64 go build -ldflags=$(LD_FLAGS) -o $(APP)-freebsd-amd64 main.go
 
 openbsd-amd64: generate
-	@ GOOS=openbsd GOARCH=amd64 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-openbsd-amd64 main.go
+	@ GOOS=openbsd GOARCH=amd64 go build -ldflags=$(LD_FLAGS) -o $(APP)-openbsd-amd64 main.go
 
 windows-amd64: generate
-	@ GOOS=windows GOARCH=amd64 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-windows-amd64 main.go
+	@ GOOS=windows GOARCH=amd64 go build -ldflags=$(LD_FLAGS) -o $(APP)-windows-amd64 main.go
 
 build: linux-amd64 linux-armv8 linux-armv7 linux-armv6 linux-armv5 darwin-amd64 freebsd-amd64 openbsd-amd64 windows-amd64
 
 # NOTE: unsupported targets
 netbsd-amd64: generate
-	@ GOOS=netbsd GOARCH=amd64 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-netbsd-amd64 main.go
+	@ GOOS=netbsd GOARCH=amd64 go build -ldflags=$(LD_FLAGS) -o $(APP)-netbsd-amd64 main.go
 
 linux-x86: generate
-	@ GOOS=linux GOARCH=386 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-linux-x86 main.go
+	@ GOOS=linux GOARCH=386 go build -ldflags=$(LD_FLAGS) -o $(APP)-linux-x86 main.go
 
 freebsd-x86: generate
-	@ GOOS=freebsd GOARCH=386 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-freebsd-x86 main.go
+	@ GOOS=freebsd GOARCH=386 go build -ldflags=$(LD_FLAGS) -o $(APP)-freebsd-x86 main.go
 
 netbsd-x86: generate
-	@ GOOS=netbsd GOARCH=386 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-netbsd-x86 main.go
+	@ GOOS=netbsd GOARCH=386 go build -ldflags=$(LD_FLAGS) -o $(APP)-netbsd-x86 main.go
 
 openbsd-x86: generate
-	@ GOOS=openbsd GOARCH=386 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-freebsd-x86 main.go
+	@ GOOS=openbsd GOARCH=386 go build -ldflags=$(LD_FLAGS) -o $(APP)-freebsd-x86 main.go
 
 windows-x86: generate
-	@ GOOS=windows GOARCH=386 go build -mod=vendor -ldflags=$(LD_FLAGS) -o $(APP)-windows-x86 main.go
+	@ GOOS=windows GOARCH=386 go build -ldflags=$(LD_FLAGS) -o $(APP)-windows-x86 main.go
 
 run: generate
-	@ go run -mod=vendor main.go -debug
+	@ go run main.go -debug
 
 clean:
 	@ rm -f $(APP)-* $(APP)
 
 test:
-	go test -mod=vendor -cover -race -count=1 ./...
+	go test -cover -race -count=1 ./...
 
 lint:
 	golint -set_exit_status ${PKG_LIST}
@@ -106,12 +106,12 @@ lint:
 integration-test:
 	psql -U postgres -c 'drop database if exists miniflux_test;'
 	psql -U postgres -c 'create database miniflux_test;'
-	DATABASE_URL=$(DB_URL) go run -mod=vendor main.go -migrate
-	DATABASE_URL=$(DB_URL) ADMIN_USERNAME=admin ADMIN_PASSWORD=test123 go run -mod=vendor main.go -create-admin
-	go build -mod=vendor -o miniflux-test main.go
+	DATABASE_URL=$(DB_URL) go run main.go -migrate
+	DATABASE_URL=$(DB_URL) ADMIN_USERNAME=admin ADMIN_PASSWORD=test123 go run main.go -create-admin
+	go build -o miniflux-test main.go
 	DATABASE_URL=$(DB_URL) ./miniflux-test -debug >/tmp/miniflux.log 2>&1 & echo "$$!" > "/tmp/miniflux.pid"
 	while ! echo exit | nc localhost 8080; do sleep 1; done >/dev/null
-	go test -mod=vendor -v -tags=integration -count=1 miniflux.app/tests
+	go test -v -tags=integration -count=1 miniflux.app/tests
 
 clean-integration-test:
 	@ kill -9 `cat /tmp/miniflux.pid`
@@ -120,29 +120,35 @@ clean-integration-test:
 	@ psql -U postgres -c 'drop database if exists miniflux_test;'
 
 docker-image:
-	cp Dockerfile Dockerfile.amd64
-	sed -i.bak "s/__BASEIMAGE_ARCH__/amd64/" Dockerfile.amd64
-	sed -i.bak "s/__MINIFLUX_VERSION__/$(VERSION)/" Dockerfile.amd64
-	sed -i.bak "s/__MINIFLUX_ARCH__/amd64/" Dockerfile.amd64
-	docker build --pull -f Dockerfile.amd64 -t $(DOCKER_IMAGE):$(VERSION) .
-	rm -f Dockerfile.amd64*
+	docker build -t $(DOCKER_IMAGE):$(VERSION) \
+		--build-arg APP_VERSION=$(VERSION) \
+		--build-arg APP_ARCH=amd64 \
+		--build-arg BASE_IMAGE_ARCH=amd64 .
 
 docker-images:
-	for arch in amd64 arm32v6 arm32v7 arm64v8; do \
-	  case $${arch} in \
-		amd64   ) miniflux_arch="amd64";; \
-		arm32v6 ) miniflux_arch="armv6";; \
-		arm32v7 ) miniflux_arch="armv7";; \
-		arm64v8 ) miniflux_arch="armv8";; \
-	  esac ;\
-	  cp Dockerfile Dockerfile.$${arch} && \
-	  sed -i"" -e "s|__BASEIMAGE_ARCH__|$${arch}|g" Dockerfile.$${arch} && \
-	  sed -i"" -e "s|__MINIFLUX_VERSION__|$(VERSION)|g" Dockerfile.$${arch} && \
-	  sed -i"" -e "s|__MINIFLUX_ARCH__|$${miniflux_arch}|g" Dockerfile.$${arch} && \
-	  docker build --pull -f Dockerfile.$${arch} -t $(DOCKER_IMAGE):$${arch}-$(VERSION) . && \
-	  docker tag $(DOCKER_IMAGE):$${arch}-${VERSION} $(DOCKER_IMAGE):$${arch}-latest && \
-	  rm -f Dockerfile.$${arch}* ;\
-	done
+	docker build -t $(DOCKER_IMAGE):amd64-$(VERSION) \
+		--build-arg APP_VERSION=$(VERSION) \
+		--build-arg APP_ARCH=amd64 \
+		--build-arg BASE_IMAGE_ARCH=amd64 .
+	docker tag $(DOCKER_IMAGE):amd64-$(VERSION) $(DOCKER_IMAGE):amd64-latest
+
+	docker build -t $(DOCKER_IMAGE):arm32v6-$(VERSION) \
+		--build-arg APP_VERSION=$(VERSION) \
+		--build-arg APP_ARCH=armv6 \
+		--build-arg BASE_IMAGE_ARCH=arm32v6 .
+	docker tag $(DOCKER_IMAGE):arm32v6-$(VERSION) $(DOCKER_IMAGE):arm32v6-latest
+
+	docker build -t $(DOCKER_IMAGE):arm32v7-$(VERSION) \
+		--build-arg APP_VERSION=$(VERSION) \
+		--build-arg APP_ARCH=armv7 \
+		--build-arg BASE_IMAGE_ARCH=arm32v7 .
+	docker tag $(DOCKER_IMAGE):arm32v7-$(VERSION) $(DOCKER_IMAGE):arm32v7-latest
+
+	docker build -t $(DOCKER_IMAGE):arm64v8-$(VERSION) \
+		--build-arg APP_VERSION=$(VERSION) \
+		--build-arg APP_ARCH=armv8 \
+		--build-arg BASE_IMAGE_ARCH=arm64v8 .
+	docker tag $(DOCKER_IMAGE):arm64v8-$(VERSION) $(DOCKER_IMAGE):arm64v8-latest
 
 docker-manifest:
 	for version in $(VERSION) latest; do \

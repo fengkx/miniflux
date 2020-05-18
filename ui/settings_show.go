@@ -33,8 +33,10 @@ func (h *handler) showSettingsPage(w http.ResponseWriter, r *http.Request) {
 		Timezone:          user.Timezone,
 		EntryDirection:    user.EntryDirection,
 		KeyboardShortcuts: user.KeyboardShortcuts,
+		CustomCSS:         user.Extra["custom_css"],
 		MercuryAPIURL:     user.MercuryAPIURL,
 	}
+
 	timezones, err := h.store.Timezones()
 	if err != nil {
 		html.ServerError(w, r, err)

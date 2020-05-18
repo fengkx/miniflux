@@ -34,17 +34,7 @@ var templateViewsMap = map[string]string{
 {{ define "content"}}
 <section class="page-header">
     <h1>{{ t "page.add_feed.title" }}</h1>
-    <ul>
-        <li>
-            <a href="{{ route "feeds" }}">{{ t "menu.feeds" }}</a>
-        </li>
-        <li>
-            <a href="{{ route "export" }}">{{ t "menu.export" }}</a>
-        </li>
-        <li>
-            <a href="{{ route "import" }}">{{ t "menu.import" }}</a>
-        </li>
-    </ul>
+    {{ template "feed_menu" }}
 </section>
 
 {{ if not .categories }}
@@ -104,6 +94,79 @@ var templateViewsMap = map[string]string{
 
 {{ end }}
 `,
+	"api_keys": `{{ define "title"}}{{ t "page.api_keys.title" }}{{ end }}
+
+{{ define "content"}}
+<section class="page-header">
+    <h1>{{ t "page.api_keys.title" }}</h1>
+    {{ template "settings_menu" dict "user" .user }}
+</section>
+
+{{ if .apiKeys }}
+{{ range .apiKeys }}
+    <table>
+    <tr>
+        <th class="column-25">{{ t "page.api_keys.table.description" }}</th>
+        <td>{{ .Description }}</td>
+    </tr>
+    <tr>
+        <th>{{ t "page.api_keys.table.token" }}</th>
+        <td>{{ .Token }}</td>
+    </tr>
+    <tr>
+        <th>{{ t "page.api_keys.table.last_used_at" }}</th>
+        <td>
+            {{ if .LastUsedAt }}
+                <time datetime="{{ isodate .LastUsedAt }}" title="{{ isodate .LastUsedAt }}">{{ elapsed $.user.Timezone .LastUsedAt }}</time>
+            {{ else }}
+                {{ t "page.api_keys.never_used"  }}
+            {{ end }}
+        </td>
+    </tr>
+    <tr>
+        <th>{{ t "page.api_keys.table.created_at" }}</th>
+        <td>
+            <time datetime="{{ isodate .CreatedAt }}" title="{{ isodate .CreatedAt }}">{{ elapsed $.user.Timezone .CreatedAt }}</time>
+        </td>
+    </tr>
+    <tr>
+        <th>{{ t "page.api_keys.table.actions" }}</th>
+        <td>
+            <a href="#"
+                data-confirm="true"
+                data-label-question="{{ t "confirm.question" }}"
+                data-label-yes="{{ t "confirm.yes" }}"
+                data-label-no="{{ t "confirm.no" }}"
+                data-label-loading="{{ t "confirm.loading" }}"
+                data-url="{{ route "removeAPIKey" "keyID" .ID }}">{{ t "action.remove" }}</a>
+        </td>
+    </tr>
+    </table>
+    <br>
+{{ end }}
+{{ end }}
+
+<h3>{{ t "page.integration.miniflux_api" }}</h3>
+<div class="panel">
+    <ul>
+        <li>
+            {{ t "page.integration.miniflux_api_endpoint" }} = <strong>{{ baseURL }}/v1/</strong>
+        </li>
+        <li>
+            {{ t "page.integration.miniflux_api_username" }} = <strong>{{ .user.Username }}</strong>
+        </li>
+        <li>
+            {{ t "page.integration.miniflux_api_password" }} = <strong>{{ t "page.integration.miniflux_api_password_value" }}</strong>
+        </li>
+    </ul>
+</div>
+
+<p>
+    <a href="{{ route "createAPIKey" }}" class="button button-primary">{{ t "menu.create_api_key" }}</a>
+</p>
+
+{{ end }}
+`,
 	"bookmark_entries": `{{ define "title"}}{{ t "page.starred.title" }} ({{ .total }}){{ end }}
 
 {{ define "content"}}
@@ -160,7 +223,7 @@ var templateViewsMap = map[string]string{
                 (<span title="{{ if eq .FeedCount 0 }}{{ t "page.categories.no_feed" }}{{ else }}{{ plural "page.categories.feed_count" .FeedCount .FeedCount }}{{ end }}">{{ .FeedCount }}</span>)
             </div>
             <div class="item-meta">
-                <ul>
+                <ul class="item-meta-info">
                     <li>
                         <a href="{{ route "categoryFeeds" "categoryID" .ID }}">{{ t "page.categories.feeds" }}</a>
                     </li>
@@ -298,17 +361,7 @@ var templateViewsMap = map[string]string{
 {{ define "content"}}
 <section class="page-header">
     <h1>{{ t "page.add_feed.title" }}</h1>
-    <ul>
-        <li>
-            <a href="{{ route "feeds" }}">{{ t "menu.feeds" }}</a>
-        </li>
-        <li>
-            <a href="{{ route "export" }}">{{ t "menu.export" }}</a>
-        </li>
-        <li>
-            <a href="{{ route "import" }}">{{ t "menu.import" }}</a>
-        </li>
-    </ul>
+    {{ template "feed_menu" }}
 </section>
 
 <form action="{{ route "chooseSubscription" }}" method="POST">
@@ -327,13 +380,37 @@ var templateViewsMap = map[string]string{
 
     {{ range .subscriptions }}
         <div class="radio-group">
-            <label title="{{ .URL }}"><input type="radio" name="url" value="{{ .URL }}"> {{ .Title }}</label> ({{ .Type }})
-            <small title="Type = {{ .Type }}"><a href="{{ .URL }}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">{{ .URL }}</a></small>
+            <label title="{{ .URL | safeURL  }}"><input type="radio" name="url" value="{{ .URL | safeURL  }}"> {{ .Title }}</label> ({{ .Type }})
+            <small title="Type = {{ .Type }}"><a href="{{ .URL | safeURL  }}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">{{ .URL | safeURL  }}</a></small>
         </div>
     {{ end }}
 
     <div class="buttons">
         <button type="submit" class="button button-primary" data-label-loading="{{ t "form.submit.loading" }}">{{ t "action.subscribe" }}</button>
+    </div>
+</form>
+{{ end }}
+`,
+	"create_api_key": `{{ define "title"}}{{ t "page.new_api_key.title" }}{{ end }}
+
+{{ define "content"}}
+<section class="page-header">
+    <h1>{{ t "page.new_api_key.title" }}</h1>
+    {{ template "settings_menu" dict "user" .user }}
+</section>
+
+<form action="{{ route "saveAPIKey" }}" method="post" autocomplete="off">
+    <input type="hidden" name="csrf" value="{{ .csrf }}">
+
+    {{ if .errorMessage }}
+        <div class="alert alert-error">{{ t .errorMessage }}</div>
+    {{ end }}
+
+    <label for="form-description">{{ t "form.api_key.label.description" }}</label>
+    <input type="text" name="description" id="form-description" value="{{ .form.Description }}" required autofocus>
+
+    <div class="buttons">
+        <button type="submit" class="button button-primary" data-label-loading="{{ t "form.submit.saving" }}">{{ t "action.save" }}</button> {{ t "action.or" }} <a href="{{ route "apiKeys" }}">{{ t "action.cancel" }}</a>
     </div>
 </form>
 {{ end }}
@@ -442,13 +519,10 @@ var templateViewsMap = map[string]string{
             <a href="{{ route "feeds" }}">{{ t "menu.feeds" }}</a>
         </li>
         <li>
-            <a href="{{ route "addSubscription" }}">{{ t "menu.add_feed" }}</a>
+            <a href="{{ route "feedEntries" "feedID" .feed.ID }}">{{ t "menu.feed_entries" }}</a>
         </li>
         <li>
-            <a href="{{ route "export" }}">{{ t "menu.export" }}</a>
-        </li>
-        <li>
-            <a href="{{ route "import" }}">{{ t "menu.import" }}</a>
+            <a href="{{ route "refreshFeed" "feedID" .feed.ID }}">{{ t "menu.refresh_feed" }}</a>
         </li>
     </ul>
 </section>
@@ -587,20 +661,21 @@ var templateViewsMap = map[string]string{
 <section class="entry" data-id="{{ .entry.ID }}">
     <header class="entry-header">
         <h1>
-            <a href="{{ .entry.URL }}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">{{ .entry.Title }}</a>
+            <a href="{{ .entry.URL | safeURL }}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">{{ .entry.Title }}</a>
         </h1>
+        {{ if .user }}
         <div class="entry-actions">
             <ul>
                 <li>
                     <a href="#"
                         title="{{ t "entry.status.title" }}"
                         data-toggle-status="true"
-                        data-label-read="✔&#xfe0e;&nbsp;{{ t "entry.status.read" }}"
                         data-label-unread="✘&nbsp;{{ t "entry.status.unread" }}"
-                        data-toast-read="✔︎&nbsp;{{ t "entry.status.toast.read" }}"
+                        data-label-read="✔︎&nbsp;{{ t "entry.status.read" }}"
                         data-toast-unread="✘&nbsp;{{ t "entry.status.toast.unread" }}"
+                        data-toast-read="✔︎&nbsp;{{ t "entry.status.toast.read" }}"
                         data-value="{{ if eq .entry.Status "read" }}read{{ else }}unread{{ end }}"
-                        >{{ if eq .entry.Status "read" }}✘&nbsp;{{ t "entry.status.unread" }}{{ else }}✔&#xfe0e;&nbsp;{{ t "entry.status.read" }}{{ end }}</a>
+                        ><span class="icon-label">{{ if eq .entry.Status "unread" }}✔&nbsp;{{ t "entry.status.read" }}{{ else }}✘&nbsp;{{ t "entry.status.unread" }}{{ end }}</span></a>
                 </li>
                 <li>
                     <a href="#"
@@ -612,7 +687,7 @@ var templateViewsMap = map[string]string{
                         data-toast-star="★&nbsp;{{ t "entry.bookmark.toast.on" }}"
                         data-toast-unstar="☆&nbsp;{{ t "entry.bookmark.toast.off" }}"
                         data-value="{{ if .entry.Starred }}star{{ else }}unstar{{ end }}"
-                        >{{ if .entry.Starred }}★&nbsp;{{ t "entry.bookmark.toggle.off" }}{{ else }}☆&nbsp;{{ t "entry.bookmark.toggle.on" }}{{ end }}</a>
+                        ><span class="icon-label">{{ if .entry.Starred }}★&nbsp;{{ t "entry.bookmark.toggle.off" }}{{ else }}☆&nbsp;{{ t "entry.bookmark.toggle.on" }}{{ end }}</span></a>
                 </li>
                 {{ if .hasSaveEntry }}
                     <li>
@@ -623,31 +698,52 @@ var templateViewsMap = map[string]string{
                             data-label-loading="{{ t "entry.state.saving" }}"
                             data-label-done="{{ t "entry.save.completed" }}"
                             data-toast-done="{{ t "entry.save.toast.completed" }}"
-                            >{{ t "entry.save.title" }}</a>
+                            >{{ template "icon_save" }}<span class="icon-label">{{ t "entry.save.label" }}</span></a>
                     </li>
                 {{ end }}
+                <li>
+                    {{ if .entry.ShareCode }}
+                        <a href="{{ route "sharedEntry" "shareCode" .entry.ShareCode }}"
+                            title="{{ t "entry.shared_entry.title" }}"
+                            target="_blank">{{ template "icon_share" }}<span class="icon-label">{{ t "entry.shared_entry.label" }}</span></a>
+                    {{ else }}
+                        <a href="{{ route "shareEntry" "entryID" .entry.ID }}"
+                            title="{{ t "entry.share.title" }}"
+                            target="_blank">{{ template "icon_share" }}<span class="icon-label">{{ t "entry.share.label" }}</span></a>
+                    {{ end }}
+                </li>
                 <li>
                     <a href="#"
                         title="{{ t "entry.scraper.title" }}"
                         data-fetch-content-entry="true"
                         data-fetch-content-url="{{ route "fetchContent" "entryID" .entry.ID }}"
                         data-label-loading="{{ t "entry.state.loading" }}"
-                        data-label-done="{{ t "entry.scraper.completed" }}"
-                        >{{ t "entry.scraper.label" }}</a>
+                        >{{ template "icon_scraper" }}<span class="icon-label">{{ t "entry.scraper.label" }}</span></a>
                 </li>
                 {{ if .entry.CommentsURL }}
                     <li>
-                        <a href="{{ .entry.CommentsURL }}" title="{{ t "entry.comments.title" }}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">{{ t "entry.comments.label" }}</a>
+                        <a href="{{ .entry.CommentsURL | safeURL }}"
+                           title="{{ t "entry.comments.title" }}"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           referrerpolicy="no-referrer"
+                           data-comments-link="true"
+                        >{{ template "icon_comment" }}<span class="icon-label">{{ t "entry.comments.label" }}</span></a>
                     </li>
                 {{ end }}
             </ul>
         </div>
+        {{ end }}
         <div class="entry-meta">
             <span class="entry-website">
-                {{ if ne .entry.Feed.Icon.IconID 0 }}
+                {{ if and .user (ne .entry.Feed.Icon.IconID 0) }}
                     <img src="{{ route "icon" "iconID" .entry.Feed.Icon.IconID }}" width="16" height="16" loading="lazy" alt="{{ .entry.Feed.Title }}">
                 {{ end }}
-                <a href="{{ route "feedEntries" "feedID" .entry.Feed.ID }}">{{ .entry.Feed.Title }}</a>
+                {{ if .user }}
+                    <a href="{{ route "feedEntries" "feedID" .entry.Feed.ID }}">{{ .entry.Feed.Title }}</a>
+                {{ else }}
+                    <a href="{{ .entry.Feed.SiteURL | safeURL }}">{{ .entry.Feed.Title }}</a>
+                {{ end }}
             </span>
             {{ if .entry.Author }}
                 <span class="entry-author">
@@ -658,58 +754,78 @@ var templateViewsMap = map[string]string{
                     {{ end }}
                 </span>
             {{ end }}
-            <span class="category">
-                <a href="{{ route "categoryEntries" "categoryID" .entry.Feed.Category.ID }}">{{ .entry.Feed.Category.Title }}</a>
-            </span>
+            {{ if .user }}
+                <span class="category">
+                    <a href="{{ route "categoryEntries" "categoryID" .entry.Feed.Category.ID }}">{{ .entry.Feed.Category.Title }}</a>
+                </span>
+            {{ end }}
         </div>
         <div class="entry-date">
-            <time datetime="{{ isodate .entry.Date }}" title="{{ isodate .entry.Date }}">{{ elapsed $.user.Timezone .entry.Date }}</time>
+            {{ if .user }}
+                <time datetime="{{ isodate .entry.Date }}" title="{{ isodate .entry.Date }}">{{ elapsed $.user.Timezone .entry.Date }}</time>
+            {{ else }}
+                <time datetime="{{ isodate .entry.Date }}" title="{{ isodate .entry.Date }}">{{ elapsed "UTC" .entry.Date }}</time>
+            {{ end }}
         </div>
     </header>
     {{ if gt (len .entry.Content) 120 }}
+    {{ if .user }}
     <div class="pagination-top">
         {{ template "entry_pagination" . }}
     </div>
     {{ end }}
+    {{ end }}
     <article class="entry-content">
-        {{ noescape (proxyFilter .entry.Content) }}
+        {{ if .user }}
+            {{ noescape (proxyFilter .entry.Content) }}
+        {{ else }}
+            {{ noescape .entry.Content }}
+        {{ end }}
     </article>
     {{ if .entry.Enclosures }}
     <details class="entry-enclosures">
         <summary>{{ t "page.entry.attachments" }} ({{ len .entry.Enclosures }})</summary>
         {{ range .entry.Enclosures }}
+            {{ if ne .URL "" }}
             <div class="entry-enclosure">
                 {{ if hasPrefix .MimeType "audio/" }}
                     <div class="enclosure-audio">
                         <audio controls preload="metadata">
-                            <source src="{{ .URL }}" type="{{ .MimeType }}">
+                            <source src="{{ .URL | safeURL }}" type="{{ .MimeType }}">
                         </audio>
                     </div>
                 {{ else if hasPrefix .MimeType "video/" }}
                     <div class="enclosure-video">
                         <video controls preload="metadata">
-                            <source src="{{ .URL }}" type="{{ .MimeType }}">
+                            <source src="{{ .URL | safeURL }}" type="{{ .MimeType }}">
                         </video>
                     </div>
                 {{ else if hasPrefix .MimeType "image/" }}
                     <div class="enclosure-image">
-                        <img src="{{ proxyURL .URL }}" title="{{ .URL }} ({{ .MimeType }})" loading="lazy" alt="{{ .URL }} ({{ .MimeType }})">
+                        {{ if $.user }}
+                            <img src="{{ proxyURL .URL }}" title="{{ .URL }} ({{ .MimeType }})" loading="lazy" alt="{{ .URL }} ({{ .MimeType }})">
+                        {{ else }}
+                            <img src="{{ .URL | safeURL }}" title="{{ .URL }} ({{ .MimeType }})" loading="lazy" alt="{{ .URL }} ({{ .MimeType }})">
+                        {{ end }}
                     </div>
                 {{ end }}
 
                 <div class="entry-enclosure-download">
-                    <a href="{{ .URL }}" title="{{ t "action.download" }}{{ if gt .Size 0 }} - {{ formatFileSize .Size }}{{ end }} ({{ .MimeType }})" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">{{ .URL }}</a>
+                    <a href="{{ .URL | safeURL }}" title="{{ t "action.download" }}{{ if gt .Size 0 }} - {{ formatFileSize .Size }}{{ end }} ({{ .MimeType }})" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">{{ .URL | safeURL  }}</a>
                     <small>{{ if gt .Size 0 }} - <strong>{{ formatFileSize .Size }}</strong>{{ end }}</small>
                 </div>
             </div>
+            {{ end }}
         {{ end }}
         </details>
     {{ end }}
 </section>
 
+{{ if .user }}
 <div class="pagination-bottom">
     {{ template "entry_pagination" . }}
 </div>
+{{ end }}
 {{ end }}
 `,
 	"feed_entries": `{{ define "title"}}{{ .feed.Title }} ({{ .total }}){{ end }}
@@ -813,20 +929,7 @@ var templateViewsMap = map[string]string{
 {{ define "content"}}
 <section class="page-header">
     <h1>{{ t "page.feeds.title" }} ({{ .total }})</h1>
-    <ul>
-        <li>
-            <a href="{{ route "addSubscription" }}">{{ t "menu.add_feed" }}</a>
-        </li>
-        <li>
-            <a href="{{ route "export" }}">{{ t "menu.export" }}</a>
-        </li>
-        <li>
-            <a href="{{ route "import" }}">{{ t "menu.import" }}</a>
-        </li>
-        <li>
-            <a href="{{ route "refreshAllFeeds" }}">{{ t "menu.refresh_all_feeds" }}</a>
-        </li>
-    </ul>
+    {{ template "feed_menu" }}
 </section>
 
 {{ if not .feeds }}
@@ -852,6 +955,15 @@ var templateViewsMap = map[string]string{
                 data-label-yes="{{ t "confirm.yes" }}"
                 data-label-no="{{ t "confirm.no" }}"
                 data-label-loading="{{ t "confirm.loading" }}">{{ t "menu.flush_history" }}</a>
+        </li>
+        <li>
+            <a href="{{ route "sharedEntries" }}">{{ t "menu.shared_entries" }}</a>
+        </li>
+    </ul>
+    {{ else }}
+    <ul>
+        <li>
+            <a href="{{ route "sharedEntries" }}">{{ t "menu.shared_entries" }}</a>
         </li>
     </ul>
     {{ end }}
@@ -886,17 +998,7 @@ var templateViewsMap = map[string]string{
 {{ define "content"}}
 <section class="page-header">
     <h1>{{ t "page.import.title" }}</h1>
-    <ul>
-        <li>
-            <a href="{{ route "feeds" }}">{{ t "menu.feeds" }}</a>
-        </li>
-        <li>
-            <a href="{{ route "addSubscription" }}">{{ t "menu.add_feed" }}</a>
-        </li>
-        <li>
-            <a href="{{ route "export" }}">{{ t "menu.export" }}</a>
-        </li>
-    </ul>
+    {{ template "feed_menu" }}
 </section>
 
 {{ if .errorMessage }}
@@ -1046,21 +1148,6 @@ var templateViewsMap = map[string]string{
     </div>
 </form>
 
-<h3>{{ t "page.integration.miniflux_api" }}</h3>
-<div class="panel">
-    <ul>
-        <li>
-            {{ t "page.integration.miniflux_api_endpoint" }} = <strong>{{ baseURL }}/v1/</strong>
-        </li>
-        <li>
-            {{ t "page.integration.miniflux_api_username" }} = <strong>{{ .user.Username }}</strong>
-        </li>
-        <li>
-            {{ t "page.integration.miniflux_api_password" }} = <strong>{{ t "page.integration.miniflux_api_password_value" }}</strong>
-        </li>
-    </ul>
-</div>
-
 <h3>{{ t "page.integration.bookmarklet" }}</h3>
 <div class="panel">
     <p>{{ t "page.integration.bookmarklet.help" }}</p>
@@ -1099,8 +1186,15 @@ var templateViewsMap = map[string]string{
     <div class="oauth2">
         <a href="{{ route "oauth2Redirect" "provider" "google" }}">{{ t "page.login.google_signin" }}</a>
     </div>
+    {{ else if hasOAuth2Provider "oidc" }}
+    <div class="oauth2">
+        <a href="{{ route "oauth2Redirect" "provider" "oidc" }}">{{ t "page.login.oidc_signin" }}</a>
+    </div>
     {{ end }}
 </section>
+<footer id="prompt-home-screen">
+    <a href="#" id="btn-add-to-home-screen">★ {{ t "action.home_screen" }}</a>
+</footer>
 {{ end }}
 `,
 	"search_entries": `{{ define "title"}}{{ t "page.search.title" }} ({{ .total }}){{ end }}
@@ -1226,6 +1320,7 @@ var templateViewsMap = map[string]string{
 
     <label><input type="checkbox" name="keyboard_shortcuts" value="1" {{ if .form.KeyboardShortcuts }}checked{{ end }}> {{ t "form.prefs.label.keyboard_shortcuts" }}</label>
 
+    <label>{{t "form.prefs.label.custom_css" }}</label><textarea name="custom_css" cols="40" rows="5">{{ .form.CustomCSS }}</textarea>
     <label for="form-mercury_api_url">{{ t "form.user.label.mercury_api_url" }}</label>
     <input type="text" name="mercury_api_url" id="form-mercury_api_url" value="{{ .form.MercuryAPIURL }}">
 
@@ -1242,6 +1337,86 @@ var templateViewsMap = map[string]string{
         <a href="{{ route "oauth2Redirect" "provider" "google" }}">{{ t "page.settings.link_google_account" }}</a>
     {{ end }}
 </div>
+{{ else if hasOAuth2Provider "oidc" }}
+<div class="panel">
+    {{ if hasKey .user.Extra "oidc_id" }}
+        <a href="{{ route "oauth2Unlink" "provider" "oidc" }}">{{ t "page.settings.unlink_oidc_account" }}</a>
+    {{ else }}
+        <a href="{{ route "oauth2Redirect" "provider" "oidc" }}">{{ t "page.settings.link_oidc_account" }}</a>
+    {{ end }}
+</div>
+{{ end }}
+
+{{ end }}
+`,
+	"shared_entries": `{{ define "title"}}{{ t "page.shared_entries.title" }} ({{ .total }}){{ end }}
+
+{{ define "content"}}
+<section class="page-header">
+    <h1>{{ t "page.shared_entries.title" }} ({{ .total }})</h1>
+    {{ if .entries }}
+    <ul>
+        <li>
+            <a href="#"
+                data-confirm="true"
+                data-url="{{ route "flushHistory" }}"
+                data-label-question="{{ t "confirm.question" }}"
+                data-label-yes="{{ t "confirm.yes" }}"
+                data-label-no="{{ t "confirm.no" }}"
+                data-label-loading="{{ t "confirm.loading" }}">{{ t "menu.flush_history" }}</a>
+        </li>
+        <li>
+            <a href="{{ route "sharedEntries" }}">{{ t "menu.shared_entries" }}</a>
+        </li>
+    </ul>
+    {{ end }}
+</section>
+
+{{ if not .entries }}
+    <p class="alert alert-info">{{ t "alert.no_shared_entry" }}</p>
+{{ else }}
+    <div class="items">
+        {{ range .entries }}
+        <article class="item touch-item item-status-{{ .Status }}" data-id="{{ .ID }}">
+            <div class="item-header">
+                <span class="item-title">
+                    {{ if ne .Feed.Icon.IconID 0 }}
+                        <img src="{{ route "icon" "iconID" .Feed.Icon.IconID }}" width="16" height="16" loading="lazy" alt="{{ .Feed.Title }}">
+                    {{ end }}
+                    <a href="{{ route "readEntry" "entryID" .ID }}">{{ .Title }}</a>
+                    {{ if .ShareCode }}
+                        <a href="{{ route "sharedEntry" "shareCode" .ShareCode }}"
+                            title="{{ t "entry.shared_entry.title" }}"
+                            target="_blank">{{ template "icon_share" }}</a>
+                    {{ end }}
+                </span>
+                <span class="category"><a href="{{ route "categoryEntries" "categoryID" .Feed.Category.ID }}">{{ .Feed.Category.Title }}</a></span>
+            </div>
+            <div class="item-meta">
+                <ul class="item-meta-info">
+                    <li>
+                        <a href="{{ route "feedEntries" "feedID" .Feed.ID }}" title="{{ .Feed.SiteURL }}">{{ truncate .Feed.Title 35 }}</a>
+                    </li>
+                    <li>
+                        <time datetime="{{ isodate .Date }}" title="{{ isodate .Date }}">{{ elapsed $.user.Timezone .Date }}</time>
+                    </li>
+                </ul>
+                <ul class="item-meta-icons">
+                    <li>
+                        {{ template "icon_delete" }}
+                        <a href="#"
+                            data-confirm="true"
+                            data-url="{{ route "unshareEntry" "entryID" .ID }}"
+                            data-label-question="{{ t "confirm.question" }}"
+                            data-label-yes="{{ t "confirm.yes" }}"
+                            data-label-no="{{ t "confirm.no" }}"
+                            data-label-loading="{{ t "confirm.loading" }}">{{ t "entry.unshare.label" }}</a>
+                    </li>
+                </ul>
+            </div>
+        </article>
+        {{ end }}
+    </div>
 {{ end }}
 
 {{ end }}
@@ -1356,7 +1531,12 @@ var templateViewsMap = map[string]string{
             {{ end }}
         {{ end }}
     </table>
+    <br>
 {{ end }}
+
+<p>
+    <a href="{{ route "createUser" }}" class="button button-primary">{{ t "menu.add_user" }}</a>
+</p>
 
 {{ end }}
 `,
@@ -1364,27 +1544,30 @@ var templateViewsMap = map[string]string{
 
 var templateViewsMapChecksums = map[string]string{
 	"about":               "4035658497363d7af7f79be83190404eb21ec633fe8ec636bdfc219d9fc78cfc",
-	"add_subscription":    "5bae8c60989593257f515f9c73b35c854a94bee4b2fb08ad38aa93b17be9c1b5",
+	"add_subscription":    "0dbea93b6fc07423fa066122ad960c69616b829533371a2dbadec1e22d4f1ae0",
+	"api_keys":            "27d401b31a72881d5232486ba17eb47edaf5246eaedce81de88698c15ebb2284",
 	"bookmark_entries":    "65588da78665699dd3f287f68325e9777d511f1a57fee4131a5bb6d00bb68df8",
-	"categories":          "2c5dd0ed6355bd5acc393bbf6117d20458b5581aab82036008324f6bbbe2af75",
+	"categories":          "7a927a2c28ae60c995df9d94220153418d3bd31bf35e0800980a215b1a6a80c7",
 	"category_entries":    "dee7b9cd60c6c46f01dd4289940679df31c1fce28ce4aa7249fa459023e1eeb4",
 	"category_feeds":      "527c2ffbc4fcec775071424ba1022ae003525dba53a28cc41f48fb7b30aa984b",
-	"choose_subscription": "5f21556e6cecfd64b1cff30e22ef313d2f09698cebb03f711cbac8ec7f2c1d04",
+	"choose_subscription": "84c9730cadd78e6ee5a6b4c499aab33acddb4324ac01924d33387543eec4d702",
+	"create_api_key":      "5f74d4e92a6684927f5305096378c8be278159a5cd88ce652c7be3280a7d1685",
 	"create_category":     "6b22b5ce51abf4e225e23a79f81be09a7fb90acb265e93a8faf9446dff74018d",
 	"create_user":         "9b73a55233615e461d1f07d99ad1d4d3b54532588ab960097ba3e090c85aaf3a",
 	"edit_category":       "b1c0b38f1b714c5d884edcd61e5b5295a5f1c8b71c469b35391e4dcc97cc6d36",
-	"edit_feed":           "c00671aafb709a40df5e937091b2dd65ce2dccb59d911652d29c3a376a61fe93",
+	"edit_feed":           "7bd13ff6b0493b5bd290aed9f94f618d9e26f78284a05030960a6d0724648004",
 	"edit_user":           "c692db9de1a084c57b93e95a14b041d39bf489846cbb91fc982a62b72b77062a",
-	"entry":               "fc21489367156b0cd71888e6485f47f3146c73f2a28d1ce8d147771b99478038",
+	"entry":               "d8c30d412d58e14c946ba682166f7c582948e7b0f657d04dcbc3d004267627bb",
 	"feed_entries":        "9c70b82f55e4b311eff20be1641733612e3c1b406ce8010861e4c417d97b6dcc",
-	"feeds":               "fa06cd1e1e3fec79132386972c640a2fe91237f5dba572389d5f45be74545f25",
-	"history_entries":     "87e17d39de70eb3fdbc4000326283be610928758eae7924e4b08dcb446f3b6a9",
-	"import":              "5eb56cecaa4d369b9acc991a82be7617710c551089a2e99d34ce8b6e5c37df0a",
-	"integrations":        "6104ff6ff3ac3c1ae5e850c78250aab6e99e2342a337589f3848459fa333766a",
-	"login":               "2e72d2d4b9786641b696bedbed5e10b04bdfd68254ddbbdb0a53cca621d200c7",
+	"feeds":               "ec7d3fa96735bd8422ba69ef0927dcccddc1cc51327e0271f0312d3f881c64fd",
+	"history_entries":     "93c0c4cc541eec7f07f5c2634f250ea82ac64024939179276b6f636b72c189bf",
+	"import":              "1b59b3bd55c59fcbc6fbb346b414dcdd26d1b4e0c307e437bb58b3f92ef01ad1",
+	"integrations":        "30329452743b35c668278f519245fd9be05c1726856e0384ba542f7c307f2788",
+	"login":               "79ff2ca488c0a19b37c8fa227a21f73e94472eb357a51a077197c852f7713f11",
 	"search_entries":      "274950d03298c24f3942e209c0faed580a6d57be9cf76a6c236175a7e766ac6a",
 	"sessions":            "5d5c677bddbd027e0b0c9f7a0dd95b66d9d95b4e130959f31fb955b926c2201c",
-	"settings":            "c50d8e4d06c56951ca881804dfde345eaf3bd935739b747d0be2c569a5092459",
+	"settings":            "b00b920ac9225bbf3d5eae3942ab14ae31a4245ecfbda46329f5bad5bd1b0f5e",
+	"shared_entries":      "19caea053664220bb9519df295eb2a17cf5836eaa9104b7ee24c60b88bb524e9",
 	"unread_entries":      "e38f7ffce17dfad3151b08cd33771a2cefe8ca9db42df04fc98bd1d675dd6075",
-	"users":               "17d0b7c760557e20f888d83d6a1b0d4506dab071a593cc42080ec0dbf16adf9e",
+	"users":               "d7ff52efc582bbad10504f4a04fa3adcc12d15890e45dff51cac281e0c446e45",
 }

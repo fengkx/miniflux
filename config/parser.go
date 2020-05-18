@@ -152,12 +152,18 @@ func (p *Parser) parseLines(lines []string) (err error) {
 			p.opts.oauth2ClientSecret = parseString(value, defaultOAuth2ClientSecret)
 		case "OAUTH2_REDIRECT_URL":
 			p.opts.oauth2RedirectURL = parseString(value, defaultOAuth2RedirectURL)
+		case "OAUTH2_OIDC_DISCOVERY_ENDPOINT":
+			p.opts.oauth2OidcDiscoveryEndpoint = parseString(value, defaultOAuth2OidcDiscoveryEndpoint)
 		case "OAUTH2_PROVIDER":
 			p.opts.oauth2Provider = parseString(value, defaultOAuth2Provider)
 		case "HTTP_CLIENT_TIMEOUT":
 			p.opts.httpClientTimeout = parseInt(value, defaultHTTPClientTimeout)
 		case "HTTP_CLIENT_MAX_BODY_SIZE":
 			p.opts.httpClientMaxBodySize = int64(parseInt(value, defaultHTTPClientMaxBodySize) * 1024 * 1024)
+		case "AUTH_PROXY_HEADER":
+			p.opts.authProxyHeader = parseString(value, defaultAuthProxyHeader)
+		case "AUTH_PROXY_USER_CREATION":
+			p.opts.authProxyUserCreation = parseBool(value, defaultAuthProxyUserCreation)
 		}
 	}
 

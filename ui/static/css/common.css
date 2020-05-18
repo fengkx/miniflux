@@ -151,6 +151,29 @@ a:hover {
     display: none;
 }
 
+/* PWA prompt */
+#prompt-home-screen {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    text-align: center;
+    background: #000;
+    opacity: 85%;
+}
+
+#btn-add-to-home-screen {
+    text-decoration: none;
+    line-height: 30px;
+    color: #fff;
+}
+
+#btn-add-to-home-screen:hover {
+    color: red;
+}
+
+/* Notification - "Toast" */
 .toast-wrap {
     visibility: hidden;
     opacity: 0;
@@ -162,11 +185,11 @@ a:hover {
     text-align: center;
  }
 
- .toast-msg {
+.toast-msg {
     background-color: rgba(0,0,0,0.7);
     padding: 2px 5px;
     border-radius: 5px;
- }
+}
  
 .toastAnimate {
     animation: toastKeyFrames 2s;
@@ -174,10 +197,10 @@ a:hover {
 
 @keyframes toastKeyFrames {
     0% {visibility: hidden; opacity: 0;}
-   25% {visibility: visible; opacity: 1; z-index: 9999}
-   50% {visibility: visible; opacity: 1; z-index: 9999}
-   75% {visibility: visible; opacity: 1; z-index: 9999}
-   100% {visibility: hidden; opacity: 0; z-index: 0}
+    25% {visibility: visible; opacity: 1; z-index: 9999}
+    50% {visibility: visible; opacity: 1; z-index: 9999}
+    75% {visibility: visible; opacity: 1; z-index: 9999}
+    100% {visibility: hidden; opacity: 0; z-index: 0}
 }
 
 @media (min-width: 600px) {
@@ -345,6 +368,24 @@ input[type="text"]:focus {
 
 input[type="checkbox"] {
     margin-bottom: 15px;
+}
+
+textarea {
+    width: 350px;
+    color: var(--input-color);
+    background: var(--input-background);
+    border: var(--input-border);
+    padding: 3px;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    -webkit-appearance: none;
+}
+
+textarea:focus {
+    color: var(--input-focus-color);
+    border-color: var(--input-focus-border-color);
+    outline: 0;
+    box-shadow: var(--input-focus-box-shadow);
 }
 
 ::-moz-placeholder,
@@ -632,6 +673,9 @@ a.button {
 }
 
 .item-meta {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
     color: var(--item-meta-focus-color);
     font-size: 0.8em;
 }
@@ -654,13 +698,21 @@ a.button {
     display: inline;
 }
 
-.item-meta li:after {
+.item-meta-info li:after {
     content: "|";
     color: var(--item-meta-li-color);
 }
 
-.item-meta li:last-child:after {
+.item-meta-info li:last-child:after {
     content: "";
+}
+
+.item-meta-icons li {
+    margin-right: 5px;
+}
+
+.item-meta-icons li:last-child {
+    margin-right: 0;
 }
 
 .items {
@@ -685,6 +737,18 @@ article.feed-parsing-error {
 
 .parsing-error-count {
     cursor: pointer;
+}
+
+/* Icons */
+.icon,
+.icon-label {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.icon {
+    width: 16px;
+    height: 16px;
 }
 
 /* Entry view */
@@ -718,11 +782,8 @@ article.feed-parsing-error {
 }
 
 .entry-actions li {
-    display: inline;
-}
-
-.entry-actions li:not(:last-child):after {
-    content: "|";
+    display: inline-block;
+    margin-right: 15px;
 }
 
 .entry-meta {

@@ -142,6 +142,10 @@ func Parse() {
 		database.Migrate(db)
 	}
 
+	if err := database.IsSchemaUpToDate(db); err != nil {
+		logger.Fatal(`You must run the SQL migrations, %v`, err)
+	}
+
 	// Create admin user and start the deamon.
 	if config.Opts.CreateAdmin() {
 		createAdmin(store)
