@@ -277,6 +277,7 @@ func (s *Storage) UserByAPIKey(token string) (*model.User, error) {
 			u.timezone,
 			u.entry_direction,
 			u.keyboard_shortcuts,
+			u.mercury_parser_api_url,
 			u.last_login_at,
 			u.extra
 		FROM
